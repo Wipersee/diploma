@@ -1,0 +1,7 @@
+.vscode
+.ipynb_checkpoints
+__pycache__
+5-celebrity-faces-dataset
+face_db_embeddings
+face_db_faces
+face_db_photos
