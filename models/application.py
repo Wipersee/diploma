@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 class Application(Base):
-    __tablename__ = "application"
+    __tablename__ = "applications"
 
     app_id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
