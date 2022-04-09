@@ -29,9 +29,11 @@ config.set_main_option("sqlalchemy.url", DATABASE_URL)
 # target_metadata = mymodel.Base.metadata
 from models import user
 from models import application
-from models import users_application_assoc
 
-target_metadata = [user.Base.metadata, application.Base.metadata, users_application_assoc.Base.metadata]
+target_metadata = [
+    user.Base.metadata,
+    application.Base.metadata,
+]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

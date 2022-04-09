@@ -27,9 +27,10 @@ app.add_middleware(
 async def startup_event():
     await database.connect()
 
-    app.state.model = EmbeddingGenerator(
-        "face_db_photos", "face_db_embeddings", "face_db_faces"
-    )
+    # app.state.model = EmbeddingGenerator(
+    #     "face_db_photos", "face_db_embeddings", "face_db_faces"
+    # )
+    app.state.model =""
 
 
 @app.on_event("shutdown")

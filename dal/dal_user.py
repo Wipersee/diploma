@@ -1,16 +1,18 @@
 from dal.database import database
-from models.user import users
+from models.user import User
 from validators import user_schema as schemas
+from utils.hashing import Hasher
 
 
-async def get_user_by_email(email: str):
-    return await database.fetch_one(users.select().where(users.c.email == email))
-
-
-async def create_user(user: schemas.UserCreate):
-    fake_hashed_password = user.password + "notreallyhashed"
-    db_user = users.insert().values(
-        email=user.email, hashed_password=fake_hashed_password
+async def create_user(user: schemas.CreateUser):
+    hashed_password = Hasher.get_password_hash(user.password)
+    db_user = User.__table__.insert().values(
+        username=user.username,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        email=user.email,
+        active=user.active,
+        password=hashed_password,
     )
     user_id = await database.execute(db_user)
-    return schemas.User(**user.dict(), id=user_id)
+    return schemas.CreateUser(**user.dict(), id=user_id)

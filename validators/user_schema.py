@@ -1,54 +1,11 @@
-from typing import List
-from pydantic import BaseModel
+from typing import List, Optional
+from pydantic import BaseModel, EmailStr
 
 
-class ItemBase(BaseModel):
-    title: str
-    description: str = None
-
-
-class ItemCreate(ItemBase):
-    pass
-
-
-class Item(ItemBase):
-    id: int
-    owner_id: int
-
-    class Config:
-        orm_mode = True
-
-
-class UserBase(BaseModel):
-    email: str
-
-
-class UserCreate(UserBase):
+class CreateUser(BaseModel):
+    username: str
+    first_name: Optional[str]
+    last_name: Optional[str]
+    email: EmailStr
+    active: bool
     password: str
-    is_active: bool = True
-
-    class Config:
-        orm_mode = True
-
-
-class UserInDB(UserBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
-
-class User(UserBase):
-    id: int
-    items: List[Item] = []
-
-    class Config:
-        orm_mode = True
-
-
-class ItemUser(ItemBase):
-    id: int
-    owner: UserInDB
-
-    class Config:
-        orm_mode = True
