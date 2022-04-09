@@ -5,10 +5,9 @@ from starlette.middleware.cors import CORSMiddleware
 import structlog
 from PIL import Image
 import io
-from validation import verification
-from embedding_generator import EmbeddingGenerator
+from utils.embedding_generator import EmbeddingGenerator
 from typing import List
-import os
+from config.settings import FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH, FACE_DB_PHOTOS_PATH
 from api.routers import api_router
 from config import settings
 
@@ -23,10 +22,9 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
 
-    # app.state.model = EmbeddingGenerator(
-    #     "face_db_photos", "face_db_embeddings", "face_db_faces"
-    # )
-    app.state.model = ""
+    app.state.model = EmbeddingGenerator(
+        FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
+    )
 
 
 def get_model(request: Request) -> EmbeddingGenerator:
@@ -35,39 +33,4 @@ def get_model(request: Request) -> EmbeddingGenerator:
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-# @app.post("/register")
-# async def registration(
-#     username: str,
-#     photos: List[UploadFile] = File(...),
-#     model: EmbeddingGenerator = Depends(get_model),
-# ):
-#     model.username = username
-#     try:
-#         os.mkdir(f"face_db_photos/{username}")
-#         for photo in photos:
-#             file_extension = photo.filename.split(".")[1]
-#             photo = await photo.read()
-#             Image.open(io.BytesIO(photo)).save(f"face_db_photos/{username}/{str(uuid4())}.{file_extension}")
-#     except Exception as e:
-#         logger.error(e)
-#         return False
 
-#     try:
-#         model.setup()
-#     except Exception as e:
-#         logger.error(e)
-#         return False
-#     return True
-
-
-# @app.post("/authz")
-# async def authorize(
-#     username: str, photo: UploadFile = File(...), model: EmbeddingGenerator = Depends(get_model)
-# ):
-#     model.username = username
-#     data = await photo.read()
-
-#     # Load an image
-#     image = Image.open(io.BytesIO(data))
-
-#     return verification(model, image, username)

@@ -3,7 +3,7 @@ from sklearn.preprocessing import Normalizer
 from scipy import spatial
 import argparse
 import structlog
-from embedding_generator import EmbeddingGenerator
+from utils.embedding_generator import EmbeddingGenerator
 
 logger = structlog.get_logger()
 
@@ -30,7 +30,7 @@ def verification(model, image, username):
     input_embedding = model.get_embedding(image)
 
     try:
-        data = load(f"face_db_embeddings/{username}/{username}_embeddings.npz")
+        data = load(f"store/face_db_embeddings/{username}/{username}_embeddings.npz")
         embeddings = data["arr_0"]
 
     except FileNotFoundError:
