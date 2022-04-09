@@ -9,13 +9,10 @@ from validation import verification
 from embedding_generator import EmbeddingGenerator
 from typing import List
 import os
-from dal.database import database, engine, metadata
 from api.routers import api_router
 from config import settings
 
 logger = structlog.get_logger()
-
-metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.add_middleware(
@@ -25,17 +22,11 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    await database.connect()
 
     # app.state.model = EmbeddingGenerator(
     #     "face_db_photos", "face_db_embeddings", "face_db_faces"
     # )
-    app.state.model =""
-
-
-@app.on_event("shutdown")
-async def shutdown():
-    await database.disconnect()
+    app.state.model = ""
 
 
 def get_model(request: Request) -> EmbeddingGenerator:

@@ -9,3 +9,10 @@ class CreateUser(BaseModel):
     email: EmailStr
     active: bool
     password: str
+
+class GetUser(BaseModel):
+    username: str
+    first_name: Optional[str]
+    last_name: Optional[str]
+    email: EmailStr
+    active: bool

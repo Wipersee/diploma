@@ -1,8 +1,19 @@
-import databases
-from sqlalchemy import create_engine, MetaData
 from config.settings import DATABASE_URL
 
-database = databases.Database(DATABASE_URL)
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import Session
+
 engine = create_engine(DATABASE_URL)
 
-metadata = MetaData()
+Session = sessionmaker(bind=engine)
+
+
+def get_session():
+    session = Session()
+    try:
+        yield session
+    except:
+        raise
+    finally:
+        session.close
