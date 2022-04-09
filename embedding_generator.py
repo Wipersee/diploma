@@ -44,7 +44,6 @@ class EmbeddingGenerator:
         self.trainY = []
         self.model = load_model("facenet_keras.h5")
 
-    
     # extract a single face from a given photograph
     def extract_face(self, image, required_size=(160, 160)):
         # convert to RGB, if needed
@@ -76,7 +75,7 @@ class EmbeddingGenerator:
             # path
             path = os.path.join(directory, filename)
             # get face
-            face = self.extract_face(image = Image.open(path))
+            face = self.extract_face(image=Image.open(path))
             # store
             faces.append(face)
         return faces

@@ -9,8 +9,13 @@ from validation import verification
 from embedding_generator import EmbeddingGenerator
 from typing import List
 import os
+from dal.database import database, engine, metadata
+from api.routers import api_router
+from config import settings
 
 logger = structlog.get_logger()
+
+metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.add_middleware(
@@ -20,48 +25,57 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
+    await database.connect()
+
     app.state.model = EmbeddingGenerator(
         "face_db_photos", "face_db_embeddings", "face_db_faces"
     )
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
 
 
 def get_model(request: Request) -> EmbeddingGenerator:
     return request.app.state.model
 
 
-@app.post("/register")
-async def registration(
-    username: str,
-    photos: List[UploadFile] = File(...),
-    model: EmbeddingGenerator = Depends(get_model),
-):
-    model.username = username
-    try:
-        os.mkdir(f"face_db_photos/{username}")
-        for photo in photos:
-            file_extension = photo.filename.split(".")[1]
-            photo = await photo.read()
-            Image.open(io.BytesIO(photo)).save(f"face_db_photos/{username}/{str(uuid4())}.{file_extension}")
-    except Exception as e:
-        logger.error(e)
-        return False
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
-    try:
-        model.setup()
-    except Exception as e:
-        logger.error(e)
-        return False
-    return True
+# @app.post("/register")
+# async def registration(
+#     username: str,
+#     photos: List[UploadFile] = File(...),
+#     model: EmbeddingGenerator = Depends(get_model),
+# ):
+#     model.username = username
+#     try:
+#         os.mkdir(f"face_db_photos/{username}")
+#         for photo in photos:
+#             file_extension = photo.filename.split(".")[1]
+#             photo = await photo.read()
+#             Image.open(io.BytesIO(photo)).save(f"face_db_photos/{username}/{str(uuid4())}.{file_extension}")
+#     except Exception as e:
+#         logger.error(e)
+#         return False
+
+#     try:
+#         model.setup()
+#     except Exception as e:
+#         logger.error(e)
+#         return False
+#     return True
 
 
-@app.post("/authz")
-async def authorize(
-    username: str, photo: UploadFile = File(...), model: EmbeddingGenerator = Depends(get_model)
-):
-    model.username = username
-    data = await photo.read()
+# @app.post("/authz")
+# async def authorize(
+#     username: str, photo: UploadFile = File(...), model: EmbeddingGenerator = Depends(get_model)
+# ):
+#     model.username = username
+#     data = await photo.read()
 
-    # Load an image
-    image = Image.open(io.BytesIO(data))
-    
-    return verification(model, image, username)
+#     # Load an image
+#     image = Image.open(io.BytesIO(data))
+
+#     return verification(model, image, username)

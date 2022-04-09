@@ -30,9 +30,7 @@ def verification(model, image, username):
     input_embedding = model.get_embedding(image)
 
     try:
-        data = load(
-            f"face_db_embeddings/{username}/{username}_embeddings.npz"
-        )
+        data = load(f"face_db_embeddings/{username}/{username}_embeddings.npz")
         embeddings = data["arr_0"]
 
     except FileNotFoundError:
@@ -42,7 +40,7 @@ def verification(model, image, username):
 
     # embeddings = in_encoder.transform(embeddings)
     # input_embedding = in_encoder.transform(input_embedding)
-    
+
     results, verified = verify(
         input_image=input_embedding,
         embeddings=embeddings,
@@ -56,9 +54,10 @@ def verification(model, image, username):
         logger.error("Blocked")
         return False
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Procces validation through username.")
     parser.add_argument("-u", dest="username", required=True)
     args = parser.parse_args()
-    image=[]
+    image = []
     verification(image, args.username)
