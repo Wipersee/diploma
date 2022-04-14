@@ -8,7 +8,11 @@ from dal import dal_user, database
 from sqlalchemy.orm.session import Session
 from starlette.responses import JSONResponse
 import structlog
-from starlette.status import HTTP_200_OK, HTTP_409_CONFLICT, HTTP_500_INTERNAL_SERVER_ERROR
+from starlette.status import (
+    HTTP_200_OK,
+    HTTP_409_CONFLICT,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
 import os
 import io
 from PIL import Image
@@ -17,21 +21,28 @@ from uuid import uuid4
 
 user_router = APIRouter()
 
+
 def get_model(request: Request) -> EmbeddingGenerator:
     return request.app.state.model
 
+
 logger = structlog.get_logger()
+
 
 @user_router.get("/users")
 async def get_all_users(session: Session = Depends(database.get_session)):
     users = await dal_user.get(session=session)
-    return [GetUser(
-        username = user.username,
-        first_name = user.first_name,
-        last_name = user.last_name,
-        email = user.email,
-        active = user.active,
-    ) for user in users] 
+    return [
+        GetUser(
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            email=user.email,
+            active=user.active,
+        )
+        for user in users
+    ]
+
 
 @user_router.post("/users")
 async def create_user(
@@ -45,6 +56,7 @@ async def create_user(
         status_code=HTTP_200_OK, content={"info": "User created successfully."}
     )
 
+
 @user_router.post("/users/photos")
 async def upload_photo(
     username: str,
@@ -57,11 +69,14 @@ async def upload_photo(
         for photo in photos:
             file_extension = photo.filename.split(".")[1]
             photo = await photo.read()
-            Image.open(io.BytesIO(photo)).save(f"store/face_db_photos/{username}/{str(uuid4())}.{file_extension}")
+            Image.open(io.BytesIO(photo)).save(
+                f"store/face_db_photos/{username}/{str(uuid4())}.{file_extension}"
+            )
     except Exception as e:
         logger.error(f"Photo unpacking failed reason: {e}")
         return JSONResponse(
-            status_code=HTTP_500_INTERNAL_SERVER_ERROR, content={"info": "Error while image unpacking"}
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"info": "Error while image unpacking"},
         )
 
     try:
@@ -69,11 +84,13 @@ async def upload_photo(
     except Exception as e:
         logger.error(f"Model training failed reason: {e}")
         return JSONResponse(
-            status_code=HTTP_500_INTERNAL_SERVER_ERROR, content={"info": "Error while model training"}
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"info": "Error while model training"},
         )
     return JSONResponse(
-            status_code=HTTP_200_OK, content={"info": "Successfully trained model."}
-        )
+        status_code=HTTP_200_OK, content={"info": "Successfully trained model."}
+    )
+
 
 # @app.post("/authz")
 # async def authorize(

@@ -160,6 +160,9 @@ class EmbeddingGenerator:
 
 if __name__ == "__main__":
     facenet = EmbeddingGenerator(
-        "store/face_db_photos", "store/face_db_embeddings", "store/face_db_faces", "test"
+        "store/face_db_photos",
+        "store/face_db_embeddings",
+        "store/face_db_faces",
+        "test",
     )
     facenet.setup()

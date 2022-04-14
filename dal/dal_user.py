@@ -2,13 +2,26 @@ from models.user import User
 from validators import user_schema as schemas
 from utils.hashing import Hasher
 from sqlalchemy.orm.session import Session
+from structlog import get_logger
+
+logger = get_logger()
 
 
 async def get(session: Session):
     try:
         return session.query(User).all()
-    except Exception:
-        return []
+    except Exception as e:
+        logger.exception(f"Error in user get all dal reason : {e}")
+        return None
+
+
+async def get_by_name(session: Session, username: str):
+    try:
+        return session.query(User).filter(User.username == username).first()
+    except Exception as e:
+        logger.exception(f"Error in user get by username {username} dal reason : {e}")
+        return None
+
 
 async def add(session: Session, user: schemas.CreateUser):
     try:
@@ -26,5 +39,5 @@ async def add(session: Session, user: schemas.CreateUser):
         return True
     except Exception as e:
         session.rollback()
-        print(e)
+        logger.exception(f"Error in user add dal reason : {e}")
         return False
