@@ -1,4 +1,4 @@
 TODO:
-    - [ ] Session management
-    - [ ] Oauth provider
-    - [ ] End endpoints
+- [ ] Session management
+- [ ] Oauth provider
+- [ ] End endpoints
