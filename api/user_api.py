@@ -12,12 +12,16 @@ from starlette.status import (
     HTTP_200_OK,
     HTTP_409_CONFLICT,
     HTTP_500_INTERNAL_SERVER_ERROR,
+    HTTP_404_NOT_FOUND,
+    HTTP_401_UNAUTHORIZED,
 )
 import os
 import io
 from PIL import Image
 from utils.embedding_generator import EmbeddingGenerator
+from utils.validation import verification
 from uuid import uuid4
+import shutil
 
 user_router = APIRouter()
 
@@ -29,7 +33,7 @@ def get_model(request: Request) -> EmbeddingGenerator:
 logger = structlog.get_logger()
 
 
-@user_router.get("/users")
+@user_router.get("/")
 async def get_all_users(session: Session = Depends(database.get_session)):
     users = await dal_user.get(session=session)
     return [
@@ -44,28 +48,31 @@ async def get_all_users(session: Session = Depends(database.get_session)):
     ]
 
 
-@user_router.post("/users")
+@user_router.post("/")
 async def create_user(
     user: CreateUser, session: Session = Depends(database.get_session)
 ):
     if not await dal_user.add(session=session, user=user):
         return JSONResponse(
-            status_code=HTTP_409_CONFLICT, content={"info": "User already exists."}
+            status_code=HTTP_409_CONFLICT, content={"message": "User already exists."}
         )
     return JSONResponse(
-        status_code=HTTP_200_OK, content={"info": "User created successfully."}
+        status_code=HTTP_200_OK, content={"message": "User created successfully."}
     )
 
 
-@user_router.post("/users/photos")
+@user_router.post("/photos")
 async def upload_photo(
     username: str,
     photos: List[UploadFile] = File(...),
     model: EmbeddingGenerator = Depends(get_model),
 ):
     model.username = username
+    dir_name = f"store/face_db_photos/{username}"
     try:
-        os.mkdir(f"store/face_db_photos/{username}")
+        if os.path.exists(dir_name):
+            shutil.rmtree(dir_name)
+        os.mkdir(dir_name)
         for photo in photos:
             file_extension = photo.filename.split(".")[1]
             photo = await photo.read()
@@ -76,7 +83,7 @@ async def upload_photo(
         logger.error(f"Photo unpacking failed reason: {e}")
         return JSONResponse(
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"info": "Error while image unpacking"},
+            content={"message": "Error while image unpacking"},
         )
 
     try:
@@ -85,21 +92,36 @@ async def upload_photo(
         logger.error(f"Model training failed reason: {e}")
         return JSONResponse(
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"info": "Error while model training"},
+            content={"message": "Error while model training"},
         )
     return JSONResponse(
-        status_code=HTTP_200_OK, content={"info": "Successfully trained model."}
+        status_code=HTTP_200_OK, content={"message": "Successfully trained model."}
     )
 
 
-# @app.post("/authz")
-# async def authorize(
-#     username: str, photo: UploadFile = File(...), model: EmbeddingGenerator = Depends(get_model)
-# ):
-#     model.username = username
-#     data = await photo.read()
+@user_router.post("/authz")
+async def authorize(
+    username: str,
+    photo: UploadFile = File(...),
+    model: EmbeddingGenerator = Depends(get_model),
+    session: Session = Depends(database.get_session),
+):
+    if not await dal_user.get_by_name(session=session, username=username):
+        return JSONResponse(
+            status_code=HTTP_404_NOT_FOUND,
+            content={"message": f"User {username} not found"},
+        )
+    model.username = username
+    data = await photo.read()
 
-#     # Load an image
-#     image = Image.open(io.BytesIO(data))
+    # Load an image
+    image = Image.open(io.BytesIO(data))
 
-#     return verification(model, image, username)
+    if not verification(model, image, username):
+        return JSONResponse(
+            status_code=HTTP_401_UNAUTHORIZED,
+            content={"message": f"User {username} not verified"},
+        )
+    return JSONResponse(
+        status_code=HTTP_200_OK, content={"message": f"User {username} verified"}
+    )

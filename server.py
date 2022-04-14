@@ -18,7 +18,7 @@ import uvicorn
 
 logger = structlog.get_logger()
 
-app = FastAPI()
+app = FastAPI(title="FaceAuth", version="0.0.1")
 app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
 )
@@ -30,7 +30,7 @@ async def startup_event():
     # app.state.model = EmbeddingGenerator(
     #     FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
     # )
-    app.state.model = ""
+    app.state.model =""
 
 
 def get_model(request: Request) -> EmbeddingGenerator:

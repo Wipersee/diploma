@@ -6,6 +6,7 @@ from utils.hashing import generate_app_token
 
 logger = get_logger()
 
+
 async def get_by_id(session: Session, id: int):
     try:
         return session.query(Application).filter(Application.id == id).first()
@@ -13,12 +14,14 @@ async def get_by_id(session: Session, id: int):
         logger.exception(f"Exception in get_by_id app query reason {e}")
         return []
 
+
 async def get_all(session: Session):
     try:
         return session.query(Application).all()
     except Exception as e:
         logger.exception(f"Exception in get_all app query reason {e}")
         return []
+
 
 async def add(session: Session, app: schemas.CreateApp, user_id: int):
     try:
@@ -28,7 +31,7 @@ async def add(session: Session, app: schemas.CreateApp, user_id: int):
             login_url=app.login_url,
             token=token,
             active=True,
-            ruler_id=user_id
+            ruler_id=user_id,
         )
         session.add(db_app)
         session.commit()

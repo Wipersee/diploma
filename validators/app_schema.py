@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, AnyUrl
 
 
-class GetAllApps(BaseModel):
+class GetApp(BaseModel):
     id: int
     name: str
     login_url: str

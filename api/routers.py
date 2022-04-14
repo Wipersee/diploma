@@ -4,6 +4,6 @@ from api.application_api import app_router
 
 api_router = APIRouter()
 
-api_router.include_router(user_router, prefix="/auth", tags=["login"])
+api_router.include_router(user_router, prefix="/users", tags=["Users"])
 
-api_router.include_router(app_router, prefix="/apps", tags=["applications"])
+api_router.include_router(app_router, prefix="/apps", tags=["Applications"])

@@ -1,3 +1,4 @@
+from models.application import Application
 from models.user import User
 from validators import user_schema as schemas
 from utils.hashing import Hasher
@@ -40,4 +41,12 @@ async def add(session: Session, user: schemas.CreateUser):
     except Exception as e:
         session.rollback()
         logger.exception(f"Error in user add dal reason : {e}")
+        return False
+
+async def delete(session: Session, app_id: int):
+    try:
+        session.query(Application).delete().where(Application.id==app_id)
+        return True
+    except Exception as e:
+        logger.exception(f"Delete app exception reason {e}")
         return False
