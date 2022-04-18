@@ -8,9 +8,12 @@ class CreateUser(BaseModel):
     first_name: Optional[str]
     last_name: Optional[str]
     email: EmailStr
-    active: bool
     password: str
 
+class LoginUser(BaseModel):
+    username: str
+    password: str
+    photo: str
 
 class GetUser(BaseModel):
     username: str
@@ -18,3 +21,6 @@ class GetUser(BaseModel):
     last_name: Optional[str]
     email: EmailStr
     active: bool
+
+class UserPhotos(BaseModel):
+    photos: List[str]
