@@ -8,6 +8,9 @@ from models.user import db, User
 from models.oauth import OAuth2Client
 from utils.oauth2 import authorization, require_oauth
 import requests
+from dal import dal_user
+from handlers.user import auth_user
+from validators import user_schema
 
 bp = Blueprint("home", __name__)
 
@@ -23,22 +26,25 @@ def split_by_crlf(s):
     return [v for v in s.splitlines() if v]
 
 
-@bp.route("/", methods=("GET", "POST"))
+@bp.route("/", methods=("POST", "GET"))
 def home():
     # HERE PHOTOGRAPHS
     if request.method == "POST":
         username = request.form.get("username")
-        user = User.query.filter_by(username=username).first()
-
+        password = request.form.get("password")
+        photo = request.form.get("photo")
+        user = dal_user.get_by_name(username=username)
         if not user:
-            user = User(username=username)
-            db.session.add(user)
-            db.session.commit()
-        session["id"] = user.id
+            return "No user found"
+        body = user_schema.LoginUser.construct(username=username, password=password, photo=photo)
+        is_valid, token = auth_user(user=user, body=body)
+        if not is_valid:
+            return "Unatorized"
+
         # if user is not just to log in, but need to head back to the auth page, then go for it
         next_page = request.args.get("next")
         if next_page:
-            return redirect(next_page)
+            return redirect(next_page+f"&token={token}")
         return redirect("/")
     user = current_user()
     if user:

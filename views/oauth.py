@@ -7,16 +7,19 @@ from authlib.integrations.flask_oauth2 import current_token
 from authlib.oauth2 import OAuth2Error
 from models.user import User
 from utils.oauth2 import authorization, require_oauth
+from dal import dal_user, dal_tokens
 
 oauth_router = Blueprint("oauth", __name__)
 
 
 @oauth_router.route("/oauth/authorize", methods=["GET", "POST"])
 def authorize():
-    user = current_user()
+    token = request.args.get("token")
     # if user log status is not true (Auth server), then to log it in
-    if not user:
+    if not token:
         return redirect(url_for("home.home", next=request.url))  # HERE LOGIN
+    token_db = dal_tokens.get_by_token(token=token)
+    user = dal_user.get_by_id(id=token_db.user_id)
     if request.method == "GET":
         try:
             grant = authorization.validate_consent_request(end_user=user)

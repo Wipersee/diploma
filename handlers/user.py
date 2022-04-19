@@ -5,6 +5,16 @@ from utils.hashing import Hasher, generate_auth_token
 from models.user import User, Token
 from dal import dal_user
 from dal import dal_tokens
+from utils.validation import EmbeddingGenerator, verification
+from config.settings import FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
+import os
+import shutil
+from PIL import Image
+import io
+import structlog
+from uuid import uuid4
+from mimetypes import guess_extension, guess_type
+import base64
 
 def create_user(user: user_schema.CreateUser):
     password = Hasher.get_password_hash(user.password)
@@ -18,8 +28,16 @@ def create_user(user: user_schema.CreateUser):
     )
     return dal_user.add(user=user_obj)
 
-def auth_user(user: User, password: str):
-    is_valid_pass = Hasher.verify_password(password, user.password)
+def auth_user(user: User, body: user_schema.LoginUser):
+    model = EmbeddingGenerator(
+        FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
+    )
+    username = user.username
+    model.username = username
+    image = Image.open(io.BytesIO(base64.decodebytes(bytes(body.photo.split(',')[1], "utf-8"))))
+    if not verification(model, image, username):
+        return False, f"User {username} not verified"
+    is_valid_pass = Hasher.verify_password(body.password, user.password)
     if not is_valid_pass:
         return False, 'Password missmatch'
     previous_token = dal_tokens.get(user_id=user.id)

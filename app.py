@@ -7,7 +7,6 @@ from dal.database import db
 from utils.oauth2 import config_oauth
 from views.routers import bp
 from views.user import user_router
-from views.client import client_router
 from views.oauth import oauth_router
 from api.client import client_api_router
 from api.user import user_api_router
@@ -39,7 +38,6 @@ def setup_app(app):
     db.init_app(app)
     config_oauth(app)
     app.register_blueprint(bp, url_prefix="")
-    app.register_blueprint(client_router, url_prefix="")
     app.register_blueprint(oauth_router, url_prefix="")
     app.register_blueprint(user_router, url_prefix="")
     app.register_blueprint(client_api_router, url_prefix="/api/clients")

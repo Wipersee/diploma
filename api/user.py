@@ -37,18 +37,10 @@ def signup(body: user_schema.CreateUser):
 @user_api_router.route("/login", methods=["POST"])
 @validate()
 def login(body: user_schema.LoginUser):
-    model = EmbeddingGenerator(
-        FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
-    )
     user = dal_user.get_by_name(username=body.username)
-    username = user.username
-    model.username = username
-    image = Image.open(io.BytesIO(base64.decodebytes(bytes(body.photo.split(',')[1], "utf-8"))))
-    if not verification(model, image, username):
-        return jsonify({"message": f"User {username} not verified"}), 401
     if not user:
-        return jsonify({"message": "No user found"}), 404
-    is_valid, token = auth_user(user=user, password=body.password)
+        return jsonify({"message": "No user found"}), 404    
+    is_valid, token = auth_user(user=user, body=body)
     if not is_valid:
         return jsonify({"message": token}), 401
     return jsonify({"message": token}), 200
