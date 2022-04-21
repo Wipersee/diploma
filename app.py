@@ -11,6 +11,7 @@ from views.oauth import oauth_router
 from api.client import client_api_router
 from api.user import user_api_router
 
+
 def create_app(config=None):
     app = Flask(__name__)
 
@@ -42,6 +43,7 @@ def setup_app(app):
     app.register_blueprint(user_router, url_prefix="")
     app.register_blueprint(client_api_router, url_prefix="/api/clients")
     app.register_blueprint(user_api_router, url_prefix="/api/users")
+
 
 app = create_app(
     {

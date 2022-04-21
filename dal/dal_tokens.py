@@ -16,6 +16,7 @@ def add(token: Token):
         logger.exception(f"Error in token add dal reason : {e}")
         return False
 
+
 def get(user_id: str):
     try:
         return db.session.query(Token).filter(Token.user_id == user_id).first()
@@ -23,12 +24,14 @@ def get(user_id: str):
         logger.exception(f"Error in token get dal reason : {e}")
         return None
 
+
 def get_by_token(token: str):
     try:
         return db.session.query(Token).filter(Token.token == token).first()
     except Exception as e:
         logger.exception(f"Error in token get by token dal reason : {e}")
         return None
+
 
 def delete(token: Token):
     try:

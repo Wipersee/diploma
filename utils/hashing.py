@@ -13,5 +13,6 @@ class Hasher:
     def get_password_hash(password):
         return pwd_context.hash(password)
 
+
 def generate_auth_token():
     return uuid4().hex

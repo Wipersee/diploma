@@ -11,7 +11,11 @@ from handlers.user import create_user, auth_user
 from validators import user_schema
 from dal import dal_user, dal_tokens
 from utils.validation import EmbeddingGenerator, verification
-from config.settings import FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
+from config.settings import (
+    FACE_DB_PHOTOS_PATH,
+    FACE_DB_EMBEDDINGS_PATH,
+    FACE_DB_FACES_PATH,
+)
 import os
 import shutil
 from PIL import Image
@@ -25,6 +29,7 @@ logger = structlog.get_logger()
 
 user_api_router = Blueprint("api_user", __name__)
 
+
 @user_api_router.route("/", methods=["POST"])
 @validate()
 def signup(body: user_schema.CreateUser):
@@ -34,16 +39,18 @@ def signup(body: user_schema.CreateUser):
         return jsonify({"message": "Error while creating user"}), 500
     return body.json(), 204
 
+
 @user_api_router.route("/login", methods=["POST"])
 @validate()
 def login(body: user_schema.LoginUser):
     user = dal_user.get_by_name(username=body.username)
     if not user:
-        return jsonify({"message": "No user found"}), 404    
+        return jsonify({"message": "No user found"}), 404
     is_valid, token = auth_user(user=user, body=body)
     if not is_valid:
         return jsonify({"message": token}), 401
     return jsonify({"message": token}), 200
+
 
 @user_api_router.route("/logout", methods=["POST"])
 @login_required
@@ -52,10 +59,14 @@ def logout(user_id):
     dal_tokens.delete(token)
     return jsonify({"message": "Logged out"}), 200
 
+
 @user_api_router.route("/auth-photos", methods=["POST"])
 @login_required
 @validate()
-def load_photos(body: user_schema.UserPhotos, user_id, ):
+def load_photos(
+    body: user_schema.UserPhotos,
+    user_id,
+):
     model = EmbeddingGenerator(
         FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
     )
@@ -69,7 +80,9 @@ def load_photos(body: user_schema.UserPhotos, user_id, ):
         os.mkdir(dir_name)
         for photo in body.photos:
             file_extension = guess_extension(guess_type(photo)[0])
-            img = Image.open(io.BytesIO(base64.decodebytes(bytes(photo.split(',')[1], "utf-8"))))
+            img = Image.open(
+                io.BytesIO(base64.decodebytes(bytes(photo.split(",")[1], "utf-8")))
+            )
             img.save(f"store/face_db_photos/{username}/{str(uuid4())}{file_extension}")
     except Exception as e:
         logger.error(f"Photo unpacking failed reason: {e}")

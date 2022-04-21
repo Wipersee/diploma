@@ -1,9 +1,10 @@
 from flask import Blueprint
 from flask import jsonify
 from authlib.integrations.flask_oauth2 import current_token
-from utils.oauth2 import  require_oauth
+from utils.oauth2 import require_oauth
 
 user_router = Blueprint("user", __name__)
+
 
 @user_router.route("/api/me")
 @require_oauth("profile")

@@ -36,7 +36,9 @@ def home():
         user = dal_user.get_by_name(username=username)
         if not user:
             return "No user found"
-        body = user_schema.LoginUser.construct(username=username, password=password, photo=photo)
+        body = user_schema.LoginUser.construct(
+            username=username, password=password, photo=photo
+        )
         is_valid, token = auth_user(user=user, body=body)
         if not is_valid:
             return "Unatorized"
@@ -44,7 +46,7 @@ def home():
         # if user is not just to log in, but need to head back to the auth page, then go for it
         next_page = request.args.get("next")
         if next_page:
-            return redirect(next_page+f"&token={token}")
+            return redirect(next_page + f"&token={token}")
         return redirect("/")
     user = current_user()
     if user:

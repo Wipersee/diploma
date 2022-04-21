@@ -21,12 +21,14 @@ def get_by_name(username: str):
         logger.exception(f"Error in user get by username {username} dal reason : {e}")
         return None
 
+
 def get_by_id(id: str):
     try:
         return db.session.query(User).filter(User.id == id).first()
     except Exception as e:
         logger.exception(f"Error in user get by id {id} dal reason : {e}")
         return None
+
 
 def add(user: schemas.CreateUser):
     try:
@@ -37,4 +39,3 @@ def add(user: schemas.CreateUser):
         db.session.rollback()
         logger.exception(f"Error in user add dal reason : {e}")
         return False
-

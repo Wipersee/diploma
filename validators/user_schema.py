@@ -10,10 +10,12 @@ class CreateUser(BaseModel):
     email: EmailStr
     password: str
 
+
 class LoginUser(BaseModel):
     username: str
     password: str
     photo: str
+
 
 class GetUser(BaseModel):
     username: str
@@ -21,6 +23,7 @@ class GetUser(BaseModel):
     last_name: Optional[str]
     email: EmailStr
     active: bool
+
 
 class UserPhotos(BaseModel):
     photos: List[str]

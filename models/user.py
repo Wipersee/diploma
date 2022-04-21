@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 from dal.database import db
 from datetime import datetime, timedelta
 
+
 class User(db.Model):
     __tablename__ = "users"
 
@@ -21,6 +22,7 @@ class User(db.Model):
 
     def get_user_id(self):
         return self.id
+
 
 class Token(db.Model):
     __tablename__ = "tokens"

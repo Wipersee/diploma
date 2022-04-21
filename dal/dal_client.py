@@ -1,4 +1,13 @@
 from dal.database import db
+from models.oauth import OAuth2Client
+
+
+def get(user_id):
+    try:
+        return db.session.query(OAuth2Client).filter(user_id == user_id).all()
+    except Exception as e:
+        return None
+
 
 def create(client):
     try:
