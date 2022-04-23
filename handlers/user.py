@@ -43,8 +43,8 @@ def auth_user(user: User, body: user_schema.LoginUser):
     image = Image.open(
         io.BytesIO(base64.decodebytes(bytes(body.photo.split(",")[1], "utf-8")))
     )
-    if not verification(model, image, username):
-        return False, f"User {username} not verified"
+    # if not verification(model, image, username):
+    #     return False, f"User {username} not verified"
     is_valid_pass = Hasher.verify_password(body.password, user.password)
     if not is_valid_pass:
         return False, "Password missmatch"

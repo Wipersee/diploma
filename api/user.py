@@ -24,6 +24,7 @@ import structlog
 from uuid import uuid4
 from mimetypes import guess_extension, guess_type
 import base64
+from flask_cors import cross_origin
 
 logger = structlog.get_logger()
 
@@ -41,6 +42,7 @@ def signup(body: user_schema.CreateUser):
 
 
 @user_api_router.route("/login", methods=["POST"])
+@cross_origin()
 @validate()
 def login(body: user_schema.LoginUser):
     user = dal_user.get_by_name(username=body.username)

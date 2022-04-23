@@ -1,0 +1,19 @@
+.registration-row {
+  height: 100vh;
+  background: linear-gradient(#141e30, #243b55);
+}
+
+.registration-col {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.registration-logo {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  font-size: 2rem;
+  color: white;
+  font-family: 'Comfortaa', cursive;
+  font-weight: 300;
+}
