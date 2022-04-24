@@ -9,12 +9,13 @@ from utils.session import login_required
 from handlers.client import create_client
 from validators import client_schema
 from dal import dal_client
-import json
+from flask_cors import cross_origin
 
 client_api_router = Blueprint("api_client", __name__)
 
 
 @client_api_router.route("/", methods=("GET",))
+@cross_origin()
 @login_required
 @validate()
 def get(user_id):
@@ -24,19 +25,20 @@ def get(user_id):
             client_id=record.client_id,
             client_secret=record.client_secret,
             client_metadata=record.client_metadata,
-        ).json()
+        )
         for record in data
     ]
     if not data:
         return jsonify({"message": "No clients found"}), 404
-    return jsonify(serialized_data), 200
+    return client_schema.GetClients.construct(clients= serialized_data).json(), 200
 
 
 @client_api_router.route("/", methods=("POST",))
+@cross_origin()
 @login_required
 @validate()
 def create(body: client_schema.CreateClient, user_id):
     is_ok, data = create_client(body, user_id)
     if not is_ok:
         return jsonify({"message": "Error accured while creating client"}), 500
-    return jsonify(data), 201
+    return jsonify({"message": "Successfully created"}), 201

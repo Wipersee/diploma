@@ -1,7 +1,7 @@
 import { Form, Input, Image, Select, Row, Col, Button, message } from "antd";
 import ImageUpload from "./../../../common/ImageUpload";
 import { useState } from "react";
-// import ChangePasswordModal from "./ChangePasswordModal";
+import PasswordModal from "./PasswordModal";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../common/axios";
 import { url } from "../../../common/url";
@@ -46,12 +46,12 @@ const CustomerSettings = () => {
   const [form] = Form.useForm();
   const [visible, setVisible] = useState(false);
   const onFinish = (values) => {
-    axiosInstance.patch('/users/me', {
+    axiosInstance.put('/api/users/', {
       first_name: values.first_name,
       last_name: values.last_name,
       email: values.email,
-      phone_number: values.phone_number,
-      address: values.address
+      // phone_number: values.phone_number,
+      // address: values.address
     })
       .then(response => {
         dispatch({ type: "SET_USER", payload: { ...response.data, role: data.role, username: data.username, on_site: data.on_site } });
@@ -59,12 +59,7 @@ const CustomerSettings = () => {
         message.success("Data is update")
       })
       .catch(err => {
-        var keys = Object.keys(err.response.data);
-        const errors = []
-        keys.forEach(function (key) {
-          errors.push(err.response.data[key])
-        });
-        message.error(errors.map(item => <span style={{ color: 'red' }}>{item[0]}<br /></span>))
+        message.error(err.response.data["message"])
       });
   };
 
@@ -82,9 +77,9 @@ const CustomerSettings = () => {
 
   return (
     <>
-      {/* <ChangePasswordModal visible={visible} setVisible={setVisible} /> */}
+      <PasswordModal visible={visible} setVisible={setVisible} />
       <Row>
-        <h1>Settings</h1>
+        <h1>Edit profile</h1>
       </Row>
       <Row justify={"space-around"}>
         <Col col={24}>
@@ -137,7 +132,7 @@ const CustomerSettings = () => {
               <Input />
             </Form.Item>
 
-            <Form.Item
+            {/* <Form.Item
               name="phone_number"
               label="Phone Number"
               rules={[
@@ -166,7 +161,7 @@ const CustomerSettings = () => {
               ]}
             >
               <Input />
-            </Form.Item>
+            </Form.Item> */}
             <Row justify={"center"}>
               <Col col={12}>
                 <Form.Item {...tailFormItemLayout}>

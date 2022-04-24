@@ -32,11 +32,11 @@ const Login = () => {
       photo: imgSrc
     }).then(response => {
       message.success({ content: 'Loaded!', key });
-      axiosInstance.defaults.headers['Authorization'] = "Bearer " + response.data.message;
+      axiosInstance.defaults.headers['Authorization'] = response.data.message;
       localStorage.setItem('token', response.data.message);
       localStorage.setItem("isLogged", true)
       dispatch({ type: "SET_LOGIN", payload: true })
-      history.push("/");
+      history.push("/edit-profile");
     }).catch(err => {
       message.error(err.response.data.message)
     });

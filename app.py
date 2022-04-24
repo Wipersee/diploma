@@ -9,6 +9,7 @@ from api.client import client_api_router
 from api.user import user_api_router
 from flask_cors import CORS
 
+
 def create_app(config=None):
     app = Flask(__name__)
 
@@ -23,7 +24,7 @@ def create_app(config=None):
         elif config.endswith(".py"):
             app.config.from_pyfile(config)
     cors = CORS(app)
-    app.config['CORS_HEADERS'] = 'Content-Type'
+    app.config["CORS_HEADERS"] = "Content-Type"
     setup_app(app)
     return app
 

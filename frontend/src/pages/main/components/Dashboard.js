@@ -1,38 +1,52 @@
-import { Line } from '@ant-design/charts';
-
+import { Line, Pie } from '@ant-design/charts';
+import {Row, Col, Card} from 'antd'
+import { useState, useEffect } from 'react';
+import axiosInstance from "../../../common/axios";
 
 const Dashboard = () => {
-    const myData = [
-        { x: 0, y: 0 },
-        { x: 1, y: 2 },
-        { x: 2, y: 4 },
-        { x: 3, y: 11 },
-        { x: 4, y: 9 },
-        { x: 5, y: 14 },
-        { x: 6, y: 19 },
-        { x: 7, y: 17 },
-        { x: 8, y: 22 },
-        { x: 9, y: 24 },
-        { x: 10, y: 23 },
-        { x: 11, y: 27 },
-        { x: 12, y: 32 },
-        { x: 13, y: 30 },
-        { x: 14, y: 35 },
-        { x: 15, y: 37 },
-        { x: 16, y: 40 },
-      ];
-    
+    const [data_line, setDataLine] = useState([])
+    const [data_pie, setDataPie] = useState([])
+
+    useEffect(() => {
+      axiosInstance.get("api/users/unauth-dashboard/").then(response => {
+        setDataLine(response.data.line)
+        setDataPie(response.data.pie)
+        console.log(response.data.pie)
+      }).catch(err => console.log(err))
+    }, [])
+      const config = {
+        appendPadding: 10,
+        data_pie,
+        angleField: 'value',
+        colorField: 'type',
+        radius: 0.9,
+        interactions: [
+          {
+            type: 'element-active',
+          },
+        ],
+      };
       return (
-        <>
-          <Line
-            data={myData}
-            height={500}
-            xField="x"
-            yField="y"
-            point={{ size: 5, shape: 'diamon' }}
-            color='blue'
-          />
-        </>
+        <Row gutter={[16, 16]}>
+          <Col span={12}>
+          <Card title="Unauthorized logins per day"> 
+            <Line
+              data={data_line}
+              height={500}
+              xField="date"
+              yField="value"
+              point={{ size: 5, shape: 'diamon' }}
+              color='blue'
+            />
+            </Card>
+          </Col>
+          
+          <Col span={12}>
+          <Card title="Unauthorized logins per type" > 
+              <Pie data={data_pie} angleField="value" colorField='type'/>;
+            </Card>
+          </Col>
+        </Row>
       );
     };
 

@@ -32,3 +32,15 @@ class Token(db.Model):
     expire_at = Column(DateTime, default=datetime.utcnow() + timedelta(days=2))
     user_id = db.Column(db.Integer, db.ForeignKey(User.id, ondelete="CASCADE"))
     user = db.relationship(User)
+
+
+class UnauthorizedLogins(db.Model):
+    __tablename__ = "unauthorized_logins"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id, ondelete="CASCADE"))
+    user = db.relationship(User)
+    date = Column(DateTime, default=datetime.utcnow())
+    type = Column(String)
+    similarity = Column(String)
+    photo_filename = Column(String)

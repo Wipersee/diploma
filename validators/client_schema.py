@@ -23,3 +23,6 @@ class GetClient(BaseModel):
     client_id: str
     client_secret: str
     client_metadata: CreateClient
+
+class GetClients(BaseModel):
+    clients: List[GetClient]
