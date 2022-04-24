@@ -7,7 +7,7 @@ from dal.database import db
 from models.oauth import OAuth2Client
 from utils.session import split_by_crlf, current_user
 from utils.session import login_required
-from handlers.user import create_user, auth_user, update_user,update_user_password
+from handlers.user import create_user, auth_user, update_user, update_user_password
 from validators import user_schema
 from dal import dal_user, dal_tokens
 from utils.validation import EmbeddingGenerator, verification
@@ -46,6 +46,7 @@ def get_user_info(user_id):
     )
     return user_data.json(), 200
 
+
 @user_api_router.route("/unauthorized-logins/", methods=["GET"])
 @cross_origin()
 @login_required
@@ -63,6 +64,7 @@ def get_unauthorized_logins(user_id):
         return jsonify({"message": "No unauthorized logins found"}), 404
     return user_schema.GetUnauths.construct(logins=serialized_data).json(), 200
 
+
 @user_api_router.route("/unauth-dashboard/", methods=["GET"])
 @cross_origin()
 @login_required
@@ -70,16 +72,17 @@ def get_unauthorized_logins_dashboard(user_id):
     unauth_logins_pie = dal_user.get_unauth_by_user_id_for_pie(id=user_id)
     unauth_logins_line = dal_user.get_unauth_by_user_id_for_line(id=user_id)
     return_data = user_schema.GetDash.construct(
-        line=[user_schema.GetLine.construct(
-            date=line[0],
-            value=line[1]
-        ) for line in unauth_logins_line],
-        pie=[user_schema.GetPie.construct(
-            type=line[0],
-            value=line[1]
-        ) for line in unauth_logins_pie]
+        line=[
+            user_schema.GetLine.construct(date=line[0], value=line[1])
+            for line in unauth_logins_line
+        ],
+        pie=[
+            user_schema.GetPie.construct(type=line[0], value=line[1])
+            for line in unauth_logins_pie
+        ],
     ).json()
     return return_data, 200
+
 
 @user_api_router.route("/", methods=["PUT"])
 @cross_origin()
@@ -92,8 +95,9 @@ def update_user_info(body: user_schema.PutUser, user_id):
     status, error = update_user(user=body, user_id=user_id)
     if not status:
         return jsonify({"message": error}), 500
-    
+
     return body.json(), 200
+
 
 @user_api_router.route("/password/", methods=["PUT"])
 @cross_origin()
@@ -106,17 +110,19 @@ def update_user_password_api(body: user_schema.UserPassword, user_id):
     status, error = update_user_password(password=body, user=user)
     if not status:
         return jsonify({"message": error}), 500
-    
+
     return jsonify({"message": error}), 200
+
 
 @user_api_router.route("/", methods=["POST"])
 @validate()
 def signup(body: user_schema.CreateUser):
     if dal_user.get_by_name(username=body.username):
         return jsonify({"message": "Username is not free"}), 409
-    if not create_user(user=body):
-        return jsonify({"message": "Error while creating user"}), 500
-    return body.json(), 204
+    is_ok, message = create_user(user=body)
+    if not is_ok:
+        return jsonify({"message": message}), 500
+    return jsonify({"message": message}), 200
 
 
 @user_api_router.route("/login", methods=["POST"])

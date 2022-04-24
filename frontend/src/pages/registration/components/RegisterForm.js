@@ -1,29 +1,39 @@
-import { Form, Input, Card, Select, Row, Col, Checkbox, Button, Radio, message } from "antd";
+import { Form, Input, notification, Select, Row, Col, Checkbox, Button, Radio, message } from "antd";
 import axiosInstance from "../../../common/axios";
 import { useHistory } from 'react-router-dom'
 import { formItemLayout, tailFormItemLayout, prefixSelector } from './layout'
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-const CustomerFrom = () => {
+const RegisterForm = () => {
     const [form] = Form.useForm();
     const history = useHistory()
+    const dispatch = useDispatch();
+
+    const args = {
+        message: 'End register process',
+        description:
+          'You need to upload photos on the Load photos page before 2 days pass. If not you will lose your account.',
+        duration: 0,
+      };
+    
 
     const onFinish = (values) => {
-        axiosInstance.post('users/registration/customer', {
+        axiosInstance.post('api/users/', {
             username: values.username,
             password: values.password,
-            phone_number: values.phone,
             email: values.email,
-        }).then(res => {
-            message.success("User created, please login")
-            history.push('/login')
+        }).then(response => {
+            console.log(response.data)
+            message.success("User created, redirecting")
+            axiosInstance.defaults.headers['Authorization'] = response.data.message;
+            localStorage.setItem('token', response.data.message);
+            localStorage.setItem("isLogged", true)
+            dispatch({ type: "SET_LOGIN", payload: true })
+            notification['warning'](args);
+            history.push("/load-photos");
         }).catch(err => {
-            var keys = Object.keys(err.response.data);
-            const errors = []
-            keys.forEach(function (key) {
-                errors.push(err.response.data[key])
-            });
-            message.error(errors.map(item => <span style={{ color: 'red' }}>{item[0]}<br /></span>))
+            message.error(err.response.data.message)
         })
     };
 
@@ -38,6 +48,20 @@ const CustomerFrom = () => {
             }}
             scrollToFirstError
         >
+            <Form.Item
+                name="username"
+                label="Username"
+                tooltip="What do you want others to call you?"
+                rules={[
+                    {
+                        required: true,
+                        message: "Please input your nickname!",
+                        whitespace: true,
+                    },
+                ]}
+            >
+                <Input />
+            </Form.Item>
             <Form.Item
                 name="email"
                 label="E-mail"
@@ -97,38 +121,7 @@ const CustomerFrom = () => {
                 <Input.Password />
             </Form.Item>
 
-            <Form.Item
-                name="username"
-                label="Username"
-                tooltip="What do you want others to call you?"
-                rules={[
-                    {
-                        required: true,
-                        message: "Please input your nickname!",
-                        whitespace: true,
-                    },
-                ]}
-            >
-                <Input />
-            </Form.Item>
 
-            <Form.Item
-                name="phone"
-                label="Phone Number"
-                rules={[
-                    {
-                        required: true,
-                        message: "Please input your phone number!",
-                    },
-                ]}
-            >
-                <Input
-                    addonBefore={prefixSelector}
-                    style={{
-                        width: "100%",
-                    }}
-                />
-            </Form.Item>
 
             <Form.Item
                 name="agreement"
@@ -156,4 +149,4 @@ const CustomerFrom = () => {
     )
 }
 
-export default CustomerFrom;
+export default RegisterForm;

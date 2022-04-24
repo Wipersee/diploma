@@ -23,6 +23,7 @@ from structlog import get_logger
 
 logger = get_logger()
 
+
 def create_user(user: user_schema.CreateUser):
     password = Hasher.get_password_hash(user.password)
     user_obj = User(
@@ -33,7 +34,14 @@ def create_user(user: user_schema.CreateUser):
         active=True,
         password=password,
     )
-    return dal_user.add(user=user_obj)
+    if not dal_user.add(user=user_obj):
+        return False, 'Can not create user'
+    user = dal_user.get_by_name(username=user.username)
+    token = Token(token=generate_auth_token(), user_id=user.id)
+    if not dal_tokens.add(token):
+        return False, "Error while token generation"
+    print(token.token)
+    return True, token.token
 
 
 def update_user(user: user_schema.PutUser, user_id: str):
@@ -41,14 +49,16 @@ def update_user(user: user_schema.PutUser, user_id: str):
         return False, "Error while updating user"
     return True, "User info updated successfully"
 
+
 def update_user_password(password: user_schema.UserPassword, user):
     is_valid_pass = Hasher.verify_password(password.old_password, user.password)
     if not is_valid_pass:
-        return False, 'Old password is wrong'
+        return False, "Old password is wrong"
     hashed_password = Hasher.get_password_hash(password.password)
     if not dal_user.update_password(password=hashed_password, user_id=user.id):
-        return False, 'Error while updating user password'
-    return True, 'Password successfully changed'
+        return False, "Error while updating user password"
+    return True, "Password successfully changed"
+
 
 def auth_user(user: User, body: user_schema.LoginUser):
     model = EmbeddingGenerator(
@@ -69,16 +79,23 @@ def auth_user(user: User, body: user_schema.LoginUser):
             )
             img.save(f"store/unauthorized_logins/{filename}{file_extension}")
             unauthorized_login = UnauthorizedLogins(
-                user_id = user.id,
+                user_id=user.id,
                 type="DEFAULT",
                 similarity=str(max(results)),
-                photo_filename = filename
+                photo_filename=filename,
             )
-            if not dal_user.add_unauthorized_logins(unauthorized_login=unauthorized_login):
+            if not dal_user.add_unauthorized_logins(
+                unauthorized_login=unauthorized_login
+            ):
                 return False, f"User {username} not verified"
-            return False, f"User {username} not verified. Photo saved for security reasons"
+            return (
+                False,
+                f"User {username} not verified. Photo saved for security reasons",
+            )
         except Exception as e:
-            logger.exception(f"Exception while saving unauthorized image for {username}")
+            logger.exception(
+                f"Exception while saving unauthorized image for {username}"
+            )
             return False, f"User {username} not verified"
     is_valid_pass = Hasher.verify_password(body.password, user.password)
     if not is_valid_pass:

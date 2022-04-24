@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react';
 import axiosInstance from "../../../common/axios";
 import {Row, Table, Button} from "antd"
+import NoInfo from '../../../common/NoInfo';
 import moment from 'moment';
 
 const Logs = () => {
@@ -34,8 +35,8 @@ const Logs = () => {
     <Row>
         <h1>Your security logs</h1>
     </Row>
-    {unauth_logins &&
-    <Table columns={columns} dataSource={unauth_logins} rowKey="uid"/>}
+    {unauth_logins ?
+    <Table columns={columns} dataSource={unauth_logins} rowKey="uid"/> : <NoInfo/>}
   </>
 }
 

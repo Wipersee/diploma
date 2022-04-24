@@ -30,33 +30,52 @@ def get_by_id(id: str):
         logger.exception(f"Error in user get by id {id} dal reason : {e}")
         return None
 
+
 def get_unauth_by_user_id(id: str):
     try:
-        return db.session.query(UnauthorizedLogins).filter(UnauthorizedLogins.user_id == id).all()
+        return (
+            db.session.query(UnauthorizedLogins)
+            .filter(UnauthorizedLogins.user_id == id)
+            .all()
+        )
     except Exception as e:
         logger.exception(f"Error in unauthorized  get by user id {id} dal reason : {e}")
         return None
+
 
 def get_unauth_by_user_id_for_pie(id: str):
     try:
-        return db.session.query(
-            UnauthorizedLogins.type,
-            func.count(UnauthorizedLogins.date).filter(UnauthorizedLogins.user_id == id)
-        ).group_by(UnauthorizedLogins.type
-        ).all()
+        return (
+            db.session.query(
+                UnauthorizedLogins.type,
+                func.count(UnauthorizedLogins.date).filter(
+                    UnauthorizedLogins.user_id == id
+                ),
+            )
+            .group_by(UnauthorizedLogins.type)
+            .all()
+        )
     except Exception as e:
         logger.exception(f"Error in unauthorized  get by user id {id} dal reason : {e}")
         return None
 
+
 def get_unauth_by_user_id_for_line(id: str):
     try:
-        return db.session.query(
-            func.strftime("%Y-%m-%d", UnauthorizedLogins.date),
-            func.count(UnauthorizedLogins.date).filter(UnauthorizedLogins.user_id == id)
-        ).group_by(func.strftime("%Y-%m-%d", UnauthorizedLogins.date)).all()
+        return (
+            db.session.query(
+                func.strftime("%Y-%m-%d", UnauthorizedLogins.date),
+                func.count(UnauthorizedLogins.date).filter(
+                    UnauthorizedLogins.user_id == id
+                ),
+            )
+            .group_by(func.strftime("%Y-%m-%d", UnauthorizedLogins.date))
+            .all()
+        )
     except Exception as e:
         logger.exception(f"Error in unauthorized  get by user id {id} dal reason : {e}")
         return None
+
 
 def update(user: schemas.PutUser, user_id: str):
     try:
@@ -73,13 +92,10 @@ def update(user: schemas.PutUser, user_id: str):
         logger.exception(f"Error while updating user {user_id} Reason: {e}")
         return False
 
+
 def update_password(password: str, user_id: str):
     try:
-        db.session.query(User).filter(User.id == user_id).update(
-            {
-                "password": password
-            }
-        )
+        db.session.query(User).filter(User.id == user_id).update({"password": password})
         db.session.commit()
         return True
     except Exception as e:

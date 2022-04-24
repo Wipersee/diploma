@@ -30,7 +30,7 @@ def get(user_id):
     ]
     if not data:
         return jsonify({"message": "No clients found"}), 404
-    return client_schema.GetClients.construct(clients= serialized_data).json(), 200
+    return client_schema.GetClients.construct(clients=serialized_data).json(), 200
 
 
 @client_api_router.route("/", methods=("POST",))

@@ -31,28 +31,35 @@ class PutUser(BaseModel):
     last_name: Optional[str]
     email: EmailStr
 
+
 class UserPassword(BaseModel):
     old_password: str
     password: str
 
+
 class UserPhotos(BaseModel):
     photos: List[str]
+
 
 class GetUnauth(BaseModel):
     date: datetime
     type: str
     similarity: str
 
+
 class GetUnauths(BaseModel):
     logins: List[GetUnauth]
+
 
 class GetLine(BaseModel):
     date: datetime
     value: int
 
+
 class GetPie(BaseModel):
     type: str
     value: int
+
 
 class GetDash(BaseModel):
     line: List[GetLine]

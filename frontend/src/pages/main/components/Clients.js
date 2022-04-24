@@ -1,7 +1,8 @@
 import {useState, useEffect} from 'react';
 import axiosInstance from "../../../common/axios";
-import {Row, Table, Button} from "antd"
+import {Row, Table, Button, Col} from "antd"
 import ClientsModal from './ClientsModal'
+import NoInfo from '../../../common/NoInfo';
 
 const Clients = () => {
     const [clients, setClients] = useState()
@@ -58,8 +59,10 @@ const Clients = () => {
     <Button type="link" onClick={() => setVisible(true)}>
         Create new client
     </Button>
-    {clients &&
-    <Table columns={columns} dataSource={clients} rowKey="uid"/>}
+    {clients ?
+    <Table columns={columns} dataSource={clients} rowKey="uid"/> : 
+    <NoInfo/>
+    }
   </>
 }
 
