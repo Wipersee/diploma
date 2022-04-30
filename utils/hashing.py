@@ -1,6 +1,5 @@
 from passlib.context import CryptContext
-import os
-import binascii
+from uuid import uuid4
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -15,5 +14,5 @@ class Hasher:
         return pwd_context.hash(password)
 
 
-def generate_app_token():
-    return binascii.hexlify(os.urandom(20)).decode()
+def generate_auth_token():
+    return uuid4().hex

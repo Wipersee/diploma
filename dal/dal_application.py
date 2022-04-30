@@ -1,7 +1,7 @@
 from models.application import Application
 from sqlalchemy.orm.session import Session
 from structlog import get_logger
-from validators import app_schema as schemas
+from validators import client_schema as schemas
 from utils.hashing import generate_app_token
 
 logger = get_logger()

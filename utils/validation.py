@@ -49,10 +49,10 @@ def verification(model, image, username):
     )
     if verified:
         logger.info("You are welcome")
-        return True
+        return True, results
     else:
         logger.error("Blocked")
-        return False
+        return False, results
 
 
 if __name__ == "__main__":

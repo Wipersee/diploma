@@ -1,0 +1,21 @@
+.main-avatar-div {
+  z-index: 3;
+  position: fixed !important;
+  top: 0;
+  right: 0;
+}
+.main-avatar-div:hover {
+  cursor: pointer;
+}
+.avatar-group-dropdown-menu {
+  padding: 1rem !important;
+}
+.avatar-group-dropdown-menu-avatar {
+  margin: 0.5rem auto;
+  display: flex;
+  justify-content: center;
+}
+.avatar-group-h4 {
+  font-size: 1.1rem;
+  text-align: center;
+}
