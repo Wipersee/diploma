@@ -82,13 +82,12 @@ const Login = () => {
                   audio={false}
                   ref={webcamRef}
                   screenshotFormat="image/jpeg"
-                  style={{width:'90%', margin:'0 auto'}}
+                  style={{width:'100%', margin:'0 auto'}}
                 />
-            <Button type="primary" onClick={capture} shape="circle" icon={<CameraOutlined />} />
-            {imgSrc && <Image
-              width={200}
-              src={imgSrc}
-            />}
+            <div style={{"margin": "2rem auto", "textAlign": "center"}}>
+              <Button type="primary" onClick={capture} >Take a picture</Button>
+            </div>
+            
             <Form.Item>
               <Button
                 type="primary"
@@ -103,7 +102,11 @@ const Login = () => {
         </Card>
       </Col>
       <Col col={12}>
-        <img  src={mainLogo} alt="Logo" style={{width:'25vw'}}/>
+      {imgSrc ? <Image
+              width={'25vw'}
+              src={imgSrc}
+            /> : <img  src={mainLogo} alt="Logo" style={{width:'25vw'}}/>}
+        
       </Col>
     </Row>
   );

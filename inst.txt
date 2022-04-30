@@ -1,0 +1,10 @@
+http://127.0.0.1:5000/oauth/authorize?response_type=code&client_id=${client_id}&scope=${scope}
+
+curl -u kXemLjSBE4deV752Az7cxzR5:1eAiL4bTiLpcuYBX4DsNJqnSf5k4AaqYApkwIRzTR03Einbj -XPOST http://127.0.0.1:5000/oauth/token -F grant_type=authorization_code -F scope=profile -F code=${code}
+
+curl -H "Authorization: Bearer ${access_token}" http://127.0.0.1:5000/api/me
+
+
+9btcEz1cQCqQHO42RfaxxGasIgXMNV8OzjBRipSG41YV8kTN
+
+rItKvLzW4GWnNDCvunIChH7J5TKNPqmvTGVYJfM8zU
