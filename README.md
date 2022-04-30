@@ -8,7 +8,7 @@
 * [Need to do](#needtodo)
 
 ## General info
-This project is simple Lorem ipsum dolor generator.
+This project is OAuth provider with facial verification for an authentication process
 	
 ## Technologies
 Project is created with:
