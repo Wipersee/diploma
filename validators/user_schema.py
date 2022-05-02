@@ -45,6 +45,7 @@ class GetUnauth(BaseModel):
     date: datetime
     type: str
     similarity: str
+    photo: str
 
 
 class GetUnauths(BaseModel):

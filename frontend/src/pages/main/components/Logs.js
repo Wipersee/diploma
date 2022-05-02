@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import axiosInstance from "../../../common/axios";
-import {Row, Table, Button} from "antd"
+import {Row, Table, Image} from "antd"
 import NoInfo from '../../../common/NoInfo';
 import moment from 'moment';
 
@@ -23,6 +23,12 @@ const Logs = () => {
             dataIndex: 'similarity',
             key: 'similarity',
         },
+        {
+          title: 'Photo',
+          render: (record) => <Image src={"data:image/jpg;base64,"+record.photo}/>,
+          key: 'date',
+          width: '20rem'
+        }
       ];
 
     useEffect(() => {

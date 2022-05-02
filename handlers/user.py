@@ -11,16 +11,13 @@ from config.settings import (
     FACE_DB_EMBEDDINGS_PATH,
     FACE_DB_FACES_PATH,
 )
-import os
-import shutil
 from PIL import Image
 import io
-import structlog
 from uuid import uuid4
 from mimetypes import guess_extension, guess_type
 import base64
 from structlog import get_logger
-
+from validators.consts import LoginType
 logger = get_logger()
 
 
@@ -40,7 +37,6 @@ def create_user(user: user_schema.CreateUser):
     token = Token(token=generate_auth_token(), user_id=user.id)
     if not dal_tokens.add(token):
         return False, "Error while token generation"
-    print(token.token)
     return True, token.token
 
 
@@ -60,7 +56,7 @@ def update_user_password(password: user_schema.UserPassword, user):
     return True, "Password successfully changed"
 
 
-def auth_user(user: User, body: user_schema.LoginUser):
+def auth_user(user: User, body: user_schema.LoginUser, type: str = LoginType.default.value):
     model = EmbeddingGenerator(
         FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
     )
@@ -80,9 +76,9 @@ def auth_user(user: User, body: user_schema.LoginUser):
             img.save(f"store/unauthorized_logins/{filename}{file_extension}")
             unauthorized_login = UnauthorizedLogins(
                 user_id=user.id,
-                type="DEFAULT",
+                type=type,
                 similarity=str(max(results)),
-                photo_filename=filename,
+                photo_filename=f"{filename}{file_extension}",
             )
             if not dal_user.add_unauthorized_logins(
                 unauthorized_login=unauthorized_login

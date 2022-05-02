@@ -3,7 +3,7 @@ from validators import user_schema as schemas
 from structlog import get_logger
 from dal.database import db
 from sqlalchemy import func
-
+import sqlalchemy as sa
 logger = get_logger()
 
 
@@ -64,16 +64,16 @@ def get_unauth_by_user_id_for_line(id: str):
     try:
         return (
             db.session.query(
-                func.strftime("%Y-%m-%d", UnauthorizedLogins.date),
+                sa.cast(UnauthorizedLogins.date, sa.Date),
                 func.count(UnauthorizedLogins.date).filter(
                     UnauthorizedLogins.user_id == id
                 ),
             )
-            .group_by(func.strftime("%Y-%m-%d", UnauthorizedLogins.date))
+            .group_by(sa.cast(UnauthorizedLogins.date, sa.Date),)
             .all()
         )
     except Exception as e:
-        logger.exception(f"Error in unauthorized  get by user id {id} dal reason : {e}")
+        logger.exception(f"Error in unauthorized get by user id {id} dal reason : {e}")
         return None
 
 

@@ -1,16 +1,11 @@
 import time
 from flask_pydantic import validate
-from flask import Blueprint, jsonify, request
-from flask import render_template, redirect
-from werkzeug.security import gen_salt
-from dal.database import db
-from models.oauth import OAuth2Client
-from utils.session import split_by_crlf, current_user
+from flask import Blueprint, jsonify
 from utils.session import login_required
 from handlers.user import create_user, auth_user, update_user, update_user_password
 from validators import user_schema
 from dal import dal_user, dal_tokens
-from utils.validation import EmbeddingGenerator, verification
+from utils.validation import EmbeddingGenerator
 from config.settings import (
     FACE_DB_PHOTOS_PATH,
     FACE_DB_EMBEDDINGS_PATH,
@@ -25,6 +20,7 @@ from uuid import uuid4
 from mimetypes import guess_extension, guess_type
 import base64
 from flask_cors import cross_origin
+from io import BytesIO
 
 logger = structlog.get_logger()
 
@@ -52,14 +48,22 @@ def get_user_info(user_id):
 @login_required
 def get_unauthorized_logins(user_id):
     unauth_logins = dal_user.get_unauth_by_user_id(id=user_id)
-    serialized_data = [
-        user_schema.GetUnauth.construct(
+    serialized_data = []
+    for record in unauth_logins:
+        try:
+            with open(f"store/unauthorized_logins/{record.photo_filename}", "rb") as image_file:
+                data = base64.b64encode(image_file.read())
+        except FileNotFoundError:
+            logger.error(f"File {record.photo_filename} not found for user with id {user_id}")
+            data= ''
+        serialized_data.append(user_schema.GetUnauth.construct(
             date=record.date,
             type=record.type,
             similarity=record.similarity,
+            photo=data
+            )
         )
-        for record in unauth_logins
-    ]
+        
     if not unauth_logins:
         return jsonify({"message": "No unauthorized logins found"}), 404
     return user_schema.GetUnauths.construct(logins=serialized_data).json(), 200
