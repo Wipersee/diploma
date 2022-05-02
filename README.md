@@ -37,7 +37,7 @@ npm start
 
 ## Need to do
 1. ~~Add Oauth login type in security logs~~
-2. Add deletion of clients
+2. ~~Add deletion of clients~~
 3. Add revoking of grant access to account
 4. Add webcam set in Oauth page
 5. ~~Add photos on front in secutiry logs~~

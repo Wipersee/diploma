@@ -1,5 +1,5 @@
 from dal.database import db
-from models.oauth import OAuth2Client
+from models.oauth import OAuth2Client, OAuth2AuthorizationCode, OAuth2Token
 
 
 def get(user_id):
@@ -8,6 +8,11 @@ def get(user_id):
     except Exception as e:
         return None
 
+def get_by_id(client_id):
+    try:
+        return db.session.query(OAuth2Client).filter(OAuth2Client.id == client_id).first()
+    except Exception as e:
+        return None
 
 def create(client):
     try:
@@ -16,3 +21,33 @@ def create(client):
         return True
     except Exception as e:
         return False
+
+
+def delete_oauth_code(client_id):
+    try:
+        obj = db.session.query(OAuth2AuthorizationCode).filter(OAuth2AuthorizationCode.client_id == client_id).first()
+        if obj:
+            db.session.delete(obj)
+            db.session.commit()
+        return True
+    except Exception as e:
+        return None
+
+def delete_oauth_token(client_id):
+    try:
+        obj = db.session.query(OAuth2Token).filter(OAuth2Token.client_id == client_id).first()
+        if obj:
+            db.session.delete(obj)
+            db.session.commit()
+        return True
+    except Exception as e:
+        return None
+
+def delete_oauth_client(client_id):
+    try:
+        obj =  db.session.query(OAuth2Client).filter(OAuth2Client.client_id == client_id).first()
+        db.session.delete(obj)
+        db.session.commit()
+        return True
+    except Exception as e:
+        return None

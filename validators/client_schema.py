@@ -20,6 +20,7 @@ class CreateClient(BaseModel):
 
 
 class GetClient(BaseModel):
+    id: str
     client_id: str
     client_secret: str
     client_metadata: CreateClient

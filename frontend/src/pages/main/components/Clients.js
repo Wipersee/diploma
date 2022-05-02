@@ -1,12 +1,19 @@
 import {useState, useEffect} from 'react';
 import axiosInstance from "../../../common/axios";
-import {Row, Table, Button, Col} from "antd"
+import {Row, Table, Button, message} from "antd"
 import ClientsModal from './ClientsModal'
 import NoInfo from '../../../common/NoInfo';
 
 const Clients = () => {
     const [clients, setClients] = useState()
     const [visible, setVisible] = useState(false)
+
+    const deleteClient = (id) => {
+      axiosInstance.delete("api/clients/" + id).then(response => {
+        message.success(response.data.message);
+      }).catch(err =>  message.success(err.data.message))
+    }
+
     const columns = [
         {
           title: 'Client ID',
@@ -42,6 +49,13 @@ const Clients = () => {
         { 
             title: 'Grant types', 
             render: (record) => record.client_metadata.grant_types.join(", ")
+        },
+        {
+          title: 'Delete',
+          key: 'delete',
+          render: (text, record) => (
+            <Button type="link" danger onClick={() => {deleteClient(record.id)}}> Delete </Button>
+          ),
         },
       ];
 

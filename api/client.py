@@ -1,12 +1,7 @@
-import time
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from flask_pydantic import validate
-from werkzeug.security import gen_salt
-from dal.database import db
-from models.oauth import OAuth2Client
-from utils.session import split_by_crlf, current_user
 from utils.session import login_required
-from handlers.client import create_client
+from handlers.client import create_client, delete_client
 from validators import client_schema
 from dal import dal_client
 from flask_cors import cross_origin
@@ -22,6 +17,7 @@ def get(user_id):
     data = dal_client.get(user_id=user_id)
     serialized_data = [
         client_schema.GetClient.construct(
+            id=record.id,
             client_id=record.client_id,
             client_secret=record.client_secret,
             client_metadata=record.client_metadata,
@@ -42,3 +38,13 @@ def create(body: client_schema.CreateClient, user_id):
     if not is_ok:
         return jsonify({"message": "Error accured while creating client"}), 500
     return jsonify({"message": "Successfully created"}), 201
+
+
+@client_api_router.route("/<client_id>", methods=("DELETE",))
+@cross_origin()
+@login_required
+def delete(client_id, user_id):
+    is_ok = delete_client(client_id, user_id)
+    if not is_ok:
+        return jsonify({"message": "Error accured while deleting client"}), 500
+    return jsonify({"message": "Successfully deleted"}), 201

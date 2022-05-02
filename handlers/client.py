@@ -1,8 +1,8 @@
 import time
 from models.oauth import OAuth2Client
 from werkzeug.security import gen_salt
-from utils.session import split_by_crlf
 from dal import dal_client
+from dal import dal_user
 from validators import client_schema
 
 
@@ -29,3 +29,16 @@ def create_client(data: client_schema.CreateClient, user_id: str):
     else:
         client.client_secret = gen_salt(48)
     return dal_client.create(client=client), client_metadata
+
+def delete_client(client_id: str, user_id: str):
+    db_user = dal_user.get_by_id(id=user_id)
+    db_client = dal_client.get_by_id(client_id=client_id)
+    if db_user.id != db_client.user_id:
+        return False
+    if not dal_client.delete_oauth_code(client_id=db_client.client_id):
+        return False
+    if not dal_client.delete_oauth_token(client_id=db_client.client_id):
+        return False
+    if not dal_client.delete_oauth_client(client_id=db_client.client_id):
+        return False
+    return True
