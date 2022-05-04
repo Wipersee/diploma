@@ -1,8 +1,8 @@
 http://127.0.0.1:5000/oauth/authorize?response_type=code&client_id=${client_id}&scope=${scope}
 
-curl -u 31vCmmqTN2RcHWLY4tQfemY1:HCM5TU8NydcH3az92ah5VhuMsVQ7d9QyaiMKHhVSogldZXho -XPOST http://127.0.0.1:5000/oauth/token -F grant_type=authorization_code -F scope=profile -F code=0THRqH3eeXtpIqUJuFRvp6kzadRn8zcwymWMdU7dc8NivOCZ
+curl -u IONe9MetQZbkpqM2nGUoMdTc:xQQBsRng6aVrRwoF1mgLmJqiK8INOvqpV54rq3pfakBBSjmq -XPOST http://127.0.0.1:5000/oauth/token -F grant_type=authorization_code -F scope=profile -F code=bmteHB0lfPma3PXP77QKDCVYu0Ko5Sjz7LVaGDVNfc7gI8aD
 
-curl -H "Authorization: Bearer kyZlosD6SOPaxSwQrd5I543xqALUDu6swloIKOULH8" http://127.0.0.1:5000/api/me
+curl -H "Authorization: Bearer uUDmNnuwDpYrWNJoHGYoYnhakm2pISZHD4Dm5xoUlf" http://127.0.0.1:5000/api/me
 
 
 kyZlosD6SOPaxSwQrd5I543xqALUDu6swloIKOULH8

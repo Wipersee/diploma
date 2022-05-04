@@ -5,7 +5,8 @@ import {
   LockOutlined,
   SettingOutlined,
   ApiOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  DeploymentUnitOutlined
 } from '@ant-design/icons';
 import "./css/index.css";
 import { useState} from 'react';
@@ -15,6 +16,7 @@ import Dashboard from "./components/Dashboard"
 import Clients from './components/Clients'
 import Photos from "./components/Photos"
 import Logs from "./components/Logs"
+import GrantAccess from './components/GrantAccess';
 import { useEffect } from 'react'
 import axiosInstance from "../../common/axios";
 import userReducer from "../../store/reducers/userReducer";
@@ -76,6 +78,9 @@ const Main = ({ match }) => {
         <Menu.Item key="5" icon={<ApiOutlined />}>
           <Link to={`/clients`}>Clients</Link>
         </Menu.Item>
+        <Menu.Item key="6" icon={<DeploymentUnitOutlined />}>
+          <Link to={`/grant-access`}>Grant Access</Link>
+        </Menu.Item>
         <Menu.Item key="10" icon={<LogoutOutlined />} onClick={logout}>
           Logout
         </Menu.Item>
@@ -100,6 +105,9 @@ const Main = ({ match }) => {
           </Route>
           <Route path={'/security-logs'}>
             <Logs/>
+          </Route>
+          <Route path={'/grant-access'}>
+            <GrantAccess/>
           </Route>
         </Switch>
         </div>

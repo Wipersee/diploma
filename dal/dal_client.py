@@ -14,6 +14,29 @@ def get_by_id(client_id):
     except Exception as e:
         return None
 
+def get_grant_access(user_id):
+    try:
+        return db.session.query(OAuth2Token, OAuth2Client).filter(OAuth2Token.user_id == user_id).join(OAuth2Client, OAuth2Token.client_id == OAuth2Client.client_id).all()
+    except Exception as e:
+        return None
+
+def get_grant_access_one(user_id, access_id):
+    try:
+        return db.session.query(OAuth2Token).filter(OAuth2Token.user_id == user_id, OAuth2Token.id==access_id).first()
+    except Exception as e:
+        return None
+
+def revoke_grant_access(access_id):
+    try:
+        obj = db.session.query(OAuth2Token).filter(OAuth2Token.id == access_id).first()
+        if obj:
+            db.session.delete(obj)
+            db.session.commit()
+        return True
+    except Exception as e:
+        return None
+        
+
 def create(client):
     try:
         db.session.add(client)
@@ -25,9 +48,10 @@ def create(client):
 
 def delete_oauth_code(client_id):
     try:
-        obj = db.session.query(OAuth2AuthorizationCode).filter(OAuth2AuthorizationCode.client_id == client_id).first()
+        obj = db.session.query(OAuth2AuthorizationCode).filter(OAuth2AuthorizationCode.client_id == client_id).all()
         if obj:
-            db.session.delete(obj)
+            for o in obj:
+                db.session.delete(o)
             db.session.commit()
         return True
     except Exception as e:
@@ -35,9 +59,10 @@ def delete_oauth_code(client_id):
 
 def delete_oauth_token(client_id):
     try:
-        obj = db.session.query(OAuth2Token).filter(OAuth2Token.client_id == client_id).first()
+        obj = db.session.query(OAuth2Token).filter(OAuth2Token.client_id == client_id).all()
         if obj:
-            db.session.delete(obj)
+            for o in obj:
+                db.session.delete(o)
             db.session.commit()
         return True
     except Exception as e:
