@@ -45,3 +45,4 @@ npm start
 7. ~~Add PostgreSQL integration~~
 8. Add Redis for session management ?
 9. ~~Add API for user info for clients~~
+10. Add exception catch when no face in input image

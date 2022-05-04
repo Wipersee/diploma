@@ -32,10 +32,102 @@
     <div class="user-box">
       <input type="password" name="password" required="">
       <label>Password</label>
-      <input name="file" type="file" id="file">
       <input type="text" name="photo" hidden id="photo">
+      <div class="contentarea">
+        <div class="camera">
+            <video id="video">Video stream not available.</video>
+        </div>
+        <div style="margin:0.4rem auto; text-align:center"><button id="startbutton" style="background: #575656a1;
+          color: white;
+          border: 1px solid #595959;
+          padding: 0.2rem;">Take photo</button></div>
+        <canvas id="canvas"></canvas>
     </div>
-    <button type="submit">
+
+    <script>
+    (function() {
+
+        var width = 320; // We will scale the photo width to this
+        var height = 0; // This will be computed based on the input stream
+
+        var streaming = false;
+
+        var video = null;
+        var canvas = null;
+        var photo = null;
+        var startbutton = null;
+
+        function startup() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            photo = document.getElementById('photo')
+            startbutton = document.getElementById('startbutton');
+
+            navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.log("An error occurred: " + err);
+                });
+
+            video.addEventListener('canplay', function(ev) {
+                if (!streaming) {
+                    height = video.videoHeight / (video.videoWidth / width);
+
+                    if (isNaN(height)) {
+                        height = width / (4 / 3);
+                    }
+
+                    video.setAttribute('width', width);
+                    video.setAttribute('height', height);
+                    canvas.setAttribute('width', width);
+                    canvas.setAttribute('height', height);
+                    streaming = true;
+                }
+            }, false);
+
+            startbutton.addEventListener('click', function(ev) {
+                takepicture();
+                ev.preventDefault();
+            }, false);
+
+            clearphoto();
+        }
+
+
+        function clearphoto() {
+            var context = canvas.getContext('2d');
+            context.fillStyle = "#AAA";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            var data = canvas.toDataURL('image/png');  
+            photo.value = data           
+        }
+
+        function takepicture() {
+            var context = canvas.getContext('2d');
+            if (width && height) {
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(video, 0, 0, width, height);
+
+                var data = canvas.toDataURL('image/png');
+                photo.value = data       
+            } else {
+                clearphoto();
+            }
+        }
+
+        window.addEventListener('load', startup, false);
+    })();
+    </script>
+    </div>
+    <button type="submit" class="submit_button">
         <span></span>
         <span></span>
         <span></span>
@@ -44,24 +136,6 @@
     </button>
   </form>
 </div>
-
-<script>
-  // Get a reference to the file input
-  const fileInput = document.getElementById('file');
-  const photo = document.getElementById('photo')
-  // Listen for the change event so we can capture the file
-  fileInput.addEventListener('change', (e) => {
-      // Get a reference to the file
-      const file = e.target.files[0];
-
-      // Encode the file using the FileReader API
-      const reader = new FileReader();
-      reader.onloadend = () => {
-          photo.value = reader.result
-      };
-      reader.readAsDataURL(file);
-  });
-</script>
 {% endif %}
 
 <style>
@@ -132,7 +206,7 @@ body {
   font-size: 12px;
 }
 
-.login-box form button {
+.login-box form .submit_button {
   position: relative;
   display: inline-block;
   padding: 10px 20px;
@@ -146,7 +220,7 @@ body {
   letter-spacing: 4px
 }
 
-.login-box button:hover {
+.login-box .submit_button:hover {
   background: #03e9f4;
   color: #fff;
   border-radius: 5px;
@@ -156,12 +230,12 @@ body {
               0 0 100px #03e9f4;
 }
 
-.login-box button span {
+.login-box .submit_button span {
   position: absolute;
   display: block;
 }
 
-.login-box button span:nth-child(1) {
+.login-box .submit_button span:nth-child(1) {
   top: 0;
   left: -100%;
   width: 100%;
@@ -179,7 +253,7 @@ body {
   }
 }
 
-.login-box button span:nth-child(2) {
+.login-box .submit_button span:nth-child(2) {
   top: -100%;
   right: 0;
   width: 2px;
@@ -198,7 +272,7 @@ body {
   }
 }
 
-.login-box button span:nth-child(3) {
+.login-box .submit_button span:nth-child(3) {
   bottom: 0;
   right: -100%;
   width: 100%;
@@ -217,7 +291,7 @@ body {
   }
 }
 
-.login-box button span:nth-child(4) {
+.login-box .submit_button span:nth-child(4) {
   bottom: -100%;
   left: 0;
   width: 2px;

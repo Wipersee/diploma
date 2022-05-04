@@ -21,6 +21,7 @@ def home():
         username = request.form.get("username")
         password = request.form.get("password")
         photo = request.form.get("photo")
+        print(request.form)
         user = dal_user.get_by_name(username=username)
         if not user:
             return "No user found"
