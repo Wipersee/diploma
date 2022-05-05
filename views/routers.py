@@ -15,6 +15,7 @@ from validators.consts import LoginType
 
 bp = Blueprint("home", __name__)
 
+
 @bp.route("/", methods=("POST", "GET"))
 def home():
     if request.method == "POST":
@@ -38,4 +39,3 @@ def home():
             return redirect(next_page + f"&token={token}")
         return redirect("/")
     return render_template("home.html")
-

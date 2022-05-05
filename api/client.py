@@ -5,6 +5,9 @@ from handlers.client import create_client, delete_client
 from validators import client_schema
 from dal import dal_client
 from flask_cors import cross_origin
+from structlog import get_logger
+
+logger = get_logger()
 
 client_api_router = Blueprint("api_client", __name__)
 
@@ -27,6 +30,7 @@ def get(user_id):
         return jsonify({"message": "No clients found"}), 404
     return client_schema.GetClients.construct(clients=serialized_data).json(), 200
 
+
 @client_api_router.route("/grant-access", methods=("GET",))
 @cross_origin()
 @login_required
@@ -35,12 +39,12 @@ def get_grant_acces(user_id):
     serialized_data = [
         client_schema.GetGrantAccessList.construct(
             scope=token.scope,
-            client_name=client.client_metadata.get('client_name'),
+            client_name=client.client_metadata.get("client_name"),
             expires_in=token.expires_in,
             issued_at=token.issued_at,
             client_uri=client.client_uri,
             id=token.id,
-            token=token.access_token
+            token=token.access_token,
         )
         for token, client in data
     ]
@@ -48,15 +52,24 @@ def get_grant_acces(user_id):
         return jsonify({"message": "No grant access found"}), 404
     return client_schema.GetClients.construct(access=serialized_data).json(), 200
 
+
 @client_api_router.route("/grant-access/<access_id>", methods=("POST",))
 @cross_origin()
 @login_required
-def revoke_grant_access(access_id, user_id, ):
+def revoke_grant_access(
+    access_id,
+    user_id,
+):
+    logger.info(f"User with id {user_id} trying to revoke access rule for id {access_id}")
     if not dal_client.get_grant_access_one(user_id=user_id, access_id=access_id):
+        logger.error(f"User with id {user_id} failed to revoke access rule. This access id does not belong to him.")
         return jsonify({"message": "You are not permmited to revoke this access"}), 403
     if not dal_client.revoke_grant_access(access_id=access_id):
+        logger.exception(f"Error occured while revoking access for user with id {user_id} for access rule with id {access_id}")
         return jsonify({"message": "Error occured"}), 500
+    logger.info(f"User with id {user_id} successfully revoke access rule with id {access_id}")
     return jsonify({"message": "Successfully revoked"}), 200
+
 
 @client_api_router.route("/", methods=("POST",))
 @cross_origin()
@@ -64,8 +77,11 @@ def revoke_grant_access(access_id, user_id, ):
 @validate()
 def create(body: client_schema.CreateClient, user_id):
     is_ok, data = create_client(body, user_id)
+    logger.info(f"User with id {user_id} trying to create client")
     if not is_ok:
+        logger.exception(f"Error occured while creating client fo user with id {user_id}")
         return jsonify({"message": "Error accured while creating client"}), 500
+    logger.info(f"User with id {user_id} successfully created client")
     return jsonify({"message": "Successfully created"}), 201
 
 
@@ -73,7 +89,10 @@ def create(body: client_schema.CreateClient, user_id):
 @cross_origin()
 @login_required
 def delete(client_id, user_id):
+    logger.info(f"User with id {user_id} trying to delete client")
     is_ok = delete_client(client_id, user_id)
     if not is_ok:
+        logger.exception(f"Error occured while deleting client fo user with id {user_id}")
         return jsonify({"message": "Error accured while deleting client"}), 500
-    return jsonify({"message": "Successfully deleted"}), 201
+    logger.info(f"User with id {user_id} successfully deleted client")
+    return jsonify({"message": "Successfully deleted"}), 200

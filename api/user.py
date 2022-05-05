@@ -51,19 +51,24 @@ def get_unauthorized_logins(user_id):
     serialized_data = []
     for record in unauth_logins:
         try:
-            with open(f"store/unauthorized_logins/{record.photo_filename}", "rb") as image_file:
+            with open(
+                f"store/unauthorized_logins/{record.photo_filename}", "rb"
+            ) as image_file:
                 data = base64.b64encode(image_file.read())
         except FileNotFoundError:
-            logger.error(f"File {record.photo_filename} not found for user with id {user_id}")
-            data= ''
-        serialized_data.append(user_schema.GetUnauth.construct(
-            date=record.date,
-            type=record.type,
-            similarity=record.similarity,
-            photo=data
+            logger.error(
+                f"File {record.photo_filename} not found for user with id {user_id}"
+            )
+            data = ""
+        serialized_data.append(
+            user_schema.GetUnauth.construct(
+                date=record.date,
+                type=record.type,
+                similarity=record.similarity,
+                photo=data,
             )
         )
-        
+
     if not unauth_logins:
         return jsonify({"message": "No unauthorized logins found"}), 404
     return user_schema.GetUnauths.construct(logins=serialized_data).json(), 200
@@ -94,12 +99,15 @@ def get_unauthorized_logins_dashboard(user_id):
 @validate()
 def update_user_info(body: user_schema.PutUser, user_id):
     user = dal_user.get_by_id(id=user_id)
+    logger.info(f"User with id {user_id} trying to update personal info")
     if not user:
+        logger.error(f"User with id {user_id} not found")
         return jsonify({"message": "No user found"}), 404
     status, error = update_user(user=body, user_id=user_id)
     if not status:
+        logger.exception(f"Error occured while updating user info with id {user_id}")
         return jsonify({"message": error}), 500
-
+    logger.info(f"Successfully updated user info with id {user_id}")
     return body.json(), 200
 
 
@@ -109,12 +117,15 @@ def update_user_info(body: user_schema.PutUser, user_id):
 @validate()
 def update_user_password_api(body: user_schema.UserPassword, user_id):
     user = dal_user.get_by_id(id=user_id)
+    logger.info(f"User with id {user_id} trying to change password")
     if not user:
+        logger.error(f"User with id {user_id} not found")
         return jsonify({"message": "No user found"}), 404
     status, error = update_user_password(password=body, user=user)
     if not status:
+        logger.exception(f"Error occured while changing user password with id {user_id}")
         return jsonify({"message": error}), 500
-
+    logger.info(f"Successfully changed password for user with id {user_id}")
     return jsonify({"message": error}), 200
 
 
@@ -134,11 +145,15 @@ def signup(body: user_schema.CreateUser):
 @validate()
 def login(body: user_schema.LoginUser):
     user = dal_user.get_by_name(username=body.username)
+    logger.info(f"User {user_schema.username} trying to login")
     if not user:
+        logger.error(f"User {user_schema.username} not found for login")
         return jsonify({"message": "No user found"}), 404
     is_valid, token = auth_user(user=user, body=body)
     if not is_valid:
+        logger.error(f"User {user_schema.username} failed auth flow with error {token}")
         return jsonify({"message": token}), 401
+    logger.info(f"User {user_schema.username} successfully loged in")
     return jsonify({"message": token}), 200
 
 
@@ -166,6 +181,7 @@ def load_photos(
     username = user.username
     model.username = username
     dir_name = f"store/face_db_photos/{username}"
+    logger.info(f"User with id {user_id} trying to update personal auth photos")
     try:
         if os.path.exists(dir_name):
             shutil.rmtree(dir_name)
@@ -185,4 +201,5 @@ def load_photos(
     except Exception as e:
         logger.error(f"Model training failed reason: {e}")
         return jsonify({"message": "Error while model training"}), 500
+    logger.info(f"User with id {user_id} successfully updated personal auth photos")
     return jsonify({"message": "Successfully trained model."}), 200

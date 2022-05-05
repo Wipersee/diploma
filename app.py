@@ -10,6 +10,7 @@ from api.user import user_api_router
 from flask_cors import CORS
 from config.settings import DATABASE_URL
 
+
 def create_app(config=None):
     app = Flask(__name__)
 

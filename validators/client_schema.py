@@ -25,6 +25,7 @@ class GetClient(BaseModel):
     client_secret: str
     client_metadata: CreateClient
 
+
 class GetGrantAccess(BaseModel):
     scope: str
     client_name: str
@@ -34,8 +35,10 @@ class GetGrantAccess(BaseModel):
     id: int
     token: str
 
+
 class GetGrantAccessList(BaseModel):
     access: List[GetGrantAccess]
+
 
 class GetClients(BaseModel):
     clients: List[GetClient]

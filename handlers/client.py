@@ -30,6 +30,7 @@ def create_client(data: client_schema.CreateClient, user_id: str):
         client.client_secret = gen_salt(48)
     return dal_client.create(client=client), client_metadata
 
+
 def delete_client(client_id: str, user_id: str):
     db_user = dal_user.get_by_id(id=user_id)
     db_client = dal_client.get_by_id(client_id=client_id)

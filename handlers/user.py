@@ -18,6 +18,7 @@ from mimetypes import guess_extension, guess_type
 import base64
 from structlog import get_logger
 from validators.consts import LoginType
+
 logger = get_logger()
 
 
@@ -32,7 +33,7 @@ def create_user(user: user_schema.CreateUser):
         password=password,
     )
     if not dal_user.add(user=user_obj):
-        return False, 'Can not create user'
+        return False, "Can not create user"
     user = dal_user.get_by_name(username=user.username)
     token = Token(token=generate_auth_token(), user_id=user.id)
     if not dal_tokens.add(token):
@@ -56,7 +57,9 @@ def update_user_password(password: user_schema.UserPassword, user):
     return True, "Password successfully changed"
 
 
-def auth_user(user: User, body: user_schema.LoginUser, type: str = LoginType.default.value):
+def auth_user(
+    user: User, body: user_schema.LoginUser, type: str = LoginType.default.value
+):
     model = EmbeddingGenerator(
         FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
     )

@@ -4,6 +4,7 @@ from structlog import get_logger
 from dal.database import db
 from sqlalchemy import func
 import sqlalchemy as sa
+
 logger = get_logger()
 
 
@@ -69,7 +70,9 @@ def get_unauth_by_user_id_for_line(id: str):
                     UnauthorizedLogins.user_id == id
                 ),
             )
-            .group_by(sa.cast(UnauthorizedLogins.date, sa.Date),)
+            .group_by(
+                sa.cast(UnauthorizedLogins.date, sa.Date),
+            )
             .all()
         )
     except Exception as e:

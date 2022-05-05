@@ -10,4 +10,10 @@ user_router = Blueprint("user", __name__)
 @require_oauth("profile")
 def api_me():
     user = current_token.user
-    return jsonify(id=user.id, username=user.username, first_name=user.first_name, email=user.email, last_name=user.last_name)
+    return jsonify(
+        id=user.id,
+        username=user.username,
+        first_name=user.first_name,
+        email=user.email,
+        last_name=user.last_name,
+    )
