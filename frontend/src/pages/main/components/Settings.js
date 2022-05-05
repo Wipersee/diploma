@@ -1,10 +1,8 @@
 import { Form, Input, Image, Select, Row, Col, Button, message } from "antd";
-import ImageUpload from "./../../../common/ImageUpload";
 import { useState } from "react";
 import PasswordModal from "./PasswordModal";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../common/axios";
-import { url } from "../../../common/url";
 const { Option } = Select;
 
 const formItemLayout = {

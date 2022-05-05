@@ -9,7 +9,7 @@ from api.client import client_api_router
 from api.user import user_api_router
 from flask_cors import CORS
 from config.settings import DATABASE_URL
-
+from utils.logger import configure_logging
 
 def create_app(config=None):
     app = Flask(__name__)
@@ -43,6 +43,7 @@ def setup_app(app):
     app.register_blueprint(user_router, url_prefix="")
     app.register_blueprint(client_api_router, url_prefix="/api/clients")
     app.register_blueprint(user_api_router, url_prefix="/api/users")
+    configure_logging()
 
 
 app = create_app(

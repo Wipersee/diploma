@@ -55,7 +55,13 @@ class EmbeddingGenerator:
         # detect faces in the image
         results = detector.detect_faces(pixels)
         # extract the bounding box from the first face
-        x1, y1, width, height = results[0]["box"]
+        
+        if not results:
+            return None
+        plug_box = results[0].get("box", None)
+        if not plug_box:
+            return None
+        x1, y1, width, height = plug_box
         # bug fix
         x1, y1 = abs(x1), abs(y1)
         x2, y2 = x1 + width, y1 + height
@@ -76,6 +82,8 @@ class EmbeddingGenerator:
             path = os.path.join(directory, filename)
             # get face
             face = self.extract_face(image=Image.open(path))
+            if not face.any():
+                return None
             # store
             faces.append(face)
         return faces
@@ -88,6 +96,8 @@ class EmbeddingGenerator:
             path = os.path.join(dir, self.username)
             # load all faces in the subdirectory
             faces = self.load_faces(path)
+            if not faces:
+                return False
             # create labels
             labels = [self.username for _ in range(len(faces))]
             # summarize progress
@@ -145,15 +155,19 @@ class EmbeddingGenerator:
         )
 
     def setup(self):
-        self.load_photos(self.dir_train)
+        if not self.load_photos(self.dir_train):
+            raise Exception("No user on photo found")
         self._save_npz(
             os.path.join(self.dir_faces, self.username), f"{self.username}_dataset.npz"
         )
         self._get_embeddings()
         self._normilization()
+        return True
 
     def get_embedding(self, image):
         face = self.extract_face(image)
+        if not face.any():
+            return None
 
         return self._get_embedding(face)
 

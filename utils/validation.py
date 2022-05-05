@@ -28,6 +28,8 @@ def verify(input_image, embeddings, detection_threshold, verification_threshold)
 
 def verification(model, image, username):
     input_embedding = model.get_embedding(image)
+    if not input_embedding.any():
+        return False, '1.0'
 
     try:
         data = load(f"store/face_db_embeddings/{username}/{username}_embeddings.npz")
@@ -35,11 +37,6 @@ def verification(model, image, username):
 
     except FileNotFoundError:
         print("No file found")
-
-    # in_encoder = Normalizer(norm="l2")
-
-    # embeddings = in_encoder.transform(embeddings)
-    # input_embedding = in_encoder.transform(input_embedding)
 
     results, verified = verify(
         input_image=input_embedding,

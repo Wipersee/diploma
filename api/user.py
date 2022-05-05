@@ -145,15 +145,15 @@ def signup(body: user_schema.CreateUser):
 @validate()
 def login(body: user_schema.LoginUser):
     user = dal_user.get_by_name(username=body.username)
-    logger.info(f"User {user_schema.username} trying to login")
+    logger.info(f"User {body.username} trying to login")
     if not user:
-        logger.error(f"User {user_schema.username} not found for login")
+        logger.error(f"User {body.username} not found for login")
         return jsonify({"message": "No user found"}), 404
     is_valid, token = auth_user(user=user, body=body)
     if not is_valid:
-        logger.error(f"User {user_schema.username} failed auth flow with error {token}")
+        logger.error(f"User {body.username} failed auth flow with error {token}")
         return jsonify({"message": token}), 401
-    logger.info(f"User {user_schema.username} successfully loged in")
+    logger.info(f"User {body.username} successfully loged in")
     return jsonify({"message": token}), 200
 
 

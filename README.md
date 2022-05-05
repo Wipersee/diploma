@@ -39,10 +39,10 @@ npm start
 1. ~~Add Oauth login type in security logs~~
 2. ~~Add deletion of clients~~
 3. ~~Add revoking of grant access to account~~
-4. Add webcam set in Oauth page
+4. ~~Add webcam set in Oauth page~~
 5. ~~Add photos on front in secutiry logs~~
 6. Build react and add it as tempalate in / path
 7. ~~Add PostgreSQL integration~~
 8. Add Redis for session management ?
 9. ~~Add API for user info for clients~~
-10. Add exception catch when no face in input image
+10. ~~Add exception catch when no face in input image~~
