@@ -13,10 +13,10 @@ const RegisterForm = () => {
     const args = {
         message: 'End register process',
         description:
-          'You need to upload photos on the Load photos page before 2 days pass. If not you will lose your account.',
+            'You need to upload photos on the Load photos page before 2 days pass. If not you will lose your account.',
         duration: 0,
-      };
-    
+    };
+
 
     const onFinish = (values) => {
         axiosInstance.post('api/users/', {

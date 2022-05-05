@@ -1,4 +1,4 @@
-import { React,useCallback, useRef, useState } from "react";
+import { React, useCallback, useRef, useState } from "react";
 import { Form, Input, Button, Row, Col, Card, message, Image } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import "./css/index.css";
@@ -6,7 +6,7 @@ import { Link, useHistory } from 'react-router-dom'
 import axiosInstance from './../../common/axios'
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import mainLogo from'./../../images/face_logo.png';
+import mainLogo from './../../images/face_logo.png';
 import Webcam from "react-webcam";
 import {
   CameraOutlined
@@ -78,16 +78,16 @@ const Login = () => {
                 placeholder="Password"
               />
             </Form.Item>
-              <Webcam
-                  audio={false}
-                  ref={webcamRef}
-                  screenshotFormat="image/jpeg"
-                  style={{width:'100%', margin:'0 auto'}}
-                />
-            <div style={{"margin": "2rem auto", "textAlign": "center"}}>
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              style={{ width: '100%', margin: '0 auto' }}
+            />
+            <div style={{ "margin": "2rem auto", "textAlign": "center" }}>
               <Button type="primary" onClick={capture} >Take a picture</Button>
             </div>
-            
+
             <Form.Item>
               <Button
                 type="primary"
@@ -102,11 +102,11 @@ const Login = () => {
         </Card>
       </Col>
       <Col col={12}>
-      {imgSrc ? <Image
-              width={'25vw'}
-              src={imgSrc}
-            /> : <img  src={mainLogo} alt="Logo" style={{width:'25vw'}}/>}
-        
+        {imgSrc ? <Image
+          width={'25vw'}
+          src={imgSrc}
+        /> : <img src={mainLogo} alt="Logo" style={{ width: '25vw' }} />}
+
       </Col>
     </Row>
   );

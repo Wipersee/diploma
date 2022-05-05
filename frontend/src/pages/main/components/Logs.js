@@ -1,48 +1,48 @@
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import axiosInstance from "../../../common/axios";
-import {Row, Table, Image} from "antd"
+import { Row, Table, Image } from "antd"
 import NoInfo from '../../../common/NoInfo';
 import moment from 'moment';
 
 const Logs = () => {
-    const [unauth_logins, setUnauthLogins] = useState()
+  const [unauth_logins, setUnauthLogins] = useState()
 
-    const columns = [
-        {
-          title: 'Date',
-          render: (record) => moment(record.date).format('DD-MMM-YYYY HH:MM:SS'),
-          key: 'date',
-        },
-        {
-          title: 'Login type',
-          dataIndex: 'type',
-          key: 'type',
-        },
-        { 
-            title: 'Max similarity accross your photos', 
-            dataIndex: 'similarity',
-            key: 'similarity',
-        },
-        {
-          title: 'Photo',
-          render: (record) => <Image src={"data:image/jpg;base64,"+record.photo}/>,
-          key: 'date',
-          width: '20rem'
-        }
-      ];
+  const columns = [
+    {
+      title: 'Date',
+      render: (record) => moment(record.date).format('DD-MMM-YYYY HH:MM:SS'),
+      key: 'date',
+    },
+    {
+      title: 'Login type',
+      dataIndex: 'type',
+      key: 'type',
+    },
+    {
+      title: 'Max similarity accross your photos',
+      dataIndex: 'similarity',
+      key: 'similarity',
+    },
+    {
+      title: 'Photo',
+      render: (record) => <Image src={"data:image/jpg;base64," + record.photo} />,
+      key: 'date',
+      width: '20rem'
+    }
+  ];
 
-    useEffect(() => {
-        axiosInstance.get("/api/users/unauthorized-logins/").then(response => {
-            setUnauthLogins(response.data.logins)
-          }).catch(err => console.log(err))
-    }, [])
+  useEffect(() => {
+    axiosInstance.get("/api/users/unauthorized-logins/").then(response => {
+      setUnauthLogins(response.data.logins)
+    }).catch(err => console.log(err))
+  }, [])
 
-    return <>
+  return <>
     <Row>
-        <h1>Your security logs</h1>
+      <h1>Your security logs</h1>
     </Row>
     {unauth_logins ?
-    <Table columns={columns} dataSource={unauth_logins} rowKey="uid"/> : <NoInfo/>}
+      <Table columns={columns} dataSource={unauth_logins} rowKey="uid" /> : <NoInfo />}
   </>
 }
 

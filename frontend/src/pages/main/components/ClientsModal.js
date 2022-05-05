@@ -9,13 +9,13 @@ const ClientsModal = ({ visible, setVisible }) => {
   const onFinish = (values) => {
     setConfirmLoading(true);
     axiosInstance.post('api/clients/', {
-        client_name: values.client_name,
-        client_uri: values.client_uri,
-        scope: values.scope,
-        redirect_uri: [values.redirect_uri],
-        grant_type:["authorization_code", "password"],
-        response_type: ["code"],
-        token_endpoint_auth_method: "client_secret_basic"
+      client_name: values.client_name,
+      client_uri: values.client_uri,
+      scope: values.scope,
+      redirect_uri: [values.redirect_uri],
+      grant_type: ["authorization_code", "password"],
+      response_type: ["code"],
+      token_endpoint_auth_method: "client_secret_basic"
     }).then(res => {
       setVisible(false);
       setConfirmLoading(false);
@@ -75,7 +75,7 @@ const ClientsModal = ({ visible, setVisible }) => {
                 ]}
                 hasFeedback
               >
-                <Input/>
+                <Input />
               </Form.Item>
               <Form.Item
                 name="client_uri"
@@ -88,7 +88,7 @@ const ClientsModal = ({ visible, setVisible }) => {
                 ]}
                 hasFeedback
               >
-                <Input/>
+                <Input />
               </Form.Item>
 
               <Form.Item
@@ -102,10 +102,10 @@ const ClientsModal = ({ visible, setVisible }) => {
                 ]}
                 hasFeedback
               >
-                <Input/>
-                </Form.Item>
+                <Input />
+              </Form.Item>
 
-                <Form.Item
+              <Form.Item
                 name="redirect_uri"
                 label="Redirect URI"
                 rules={[
@@ -116,50 +116,8 @@ const ClientsModal = ({ visible, setVisible }) => {
                 ]}
                 hasFeedback
               >
-                <Input/>
+                <Input />
               </Form.Item>
-
-              {/* <Form.Item
-                name="grant_type"
-                label="Grant Type"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input your client grant type!",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input/>
-              </Form.Item> */}
-
-              {/* <Form.Item
-                name="response_type"
-                label="Response Type"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input your client response type!",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input/>
-              </Form.Item> */}
-
-              {/* <Form.Item
-                name="token_endpoint_auth_method"
-                label="Auth method"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input your client auth method!",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input/>
-              </Form.Item> */}
             </Form>
           </Col>
         </Row>

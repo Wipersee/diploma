@@ -9,7 +9,7 @@ const Registration = () => {
       <h3 className="registration-logo">Foauth</h3>
       <Col className="registration-col" col={24}>
         <Card title="Sign up" style={{ width: "45rem" }}>
-          <RegisterForm/>
+          <RegisterForm />
         </Card>
       </Col >
     </Row >

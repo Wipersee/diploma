@@ -9,7 +9,7 @@ import {
   DeploymentUnitOutlined
 } from '@ant-design/icons';
 import "./css/index.css";
-import { useState} from 'react';
+import { useState } from 'react';
 import { Switch, Route, Link, Redirect } from "react-router-dom";
 import Settings from "./components/Settings"
 import Dashboard from "./components/Dashboard"
@@ -60,61 +60,61 @@ const Main = ({ match }) => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-    <Sider collapsible collapsed={collapsed} onCollapse={setCollabsed} className="sider_menu">
-      <div className="logo">{collapsed ? 'F' : 'Foauth'}</div>
-      <Menu theme="dark" defaultSelectedKeys={[get_active_element()]} mode="inline" > 
-        <Menu.Item key="1" icon={<SettingOutlined />}>
-          <Link to={`/edit-profile`}>Edit profile</Link>
-        </Menu.Item>
-        <Menu.Item key="2" icon={<LockOutlined />}>
-          <Link to={`/security-logs`}>Security logs</Link>
-        </Menu.Item>
-        <Menu.Item key="3" icon={<CameraOutlined />}>
-          <Link to={`/load-photos`}>Load photos</Link>
-        </Menu.Item>
-        <Menu.Item key="4" icon={<PieChartOutlined />}>
-          <Link to={`/dasboard`}>Dashboard</Link>
-        </Menu.Item>
-        <Menu.Item key="5" icon={<ApiOutlined />}>
-          <Link to={`/clients`}>Clients</Link>
-        </Menu.Item>
-        <Menu.Item key="6" icon={<DeploymentUnitOutlined />}>
-          <Link to={`/grant-access`}>Grant Access</Link>
-        </Menu.Item>
-        <Menu.Item key="10" icon={<LogoutOutlined />} onClick={logout}>
-          Logout
-        </Menu.Item>
-      </Menu>
-    </Sider>
-    <Layout className="site-layout">
-      <Header className="site-layout-background header" style={{ padding: "0 3rem", textAlign: 'right' }}>Logged as: <b>{username}</b></Header>
-      <Content style={{ margin: '0 16px' }}>
-        <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-        <Switch>
-          <Route path={`/edit-profile`}>
-            <Settings/>
-          </Route>
-          <Route path={'/dasboard'}>
-            <Dashboard/>
-          </Route>
-          <Route path={'/clients'}>
-            <Clients/>
-          </Route>
-          <Route path={'/load-photos'}>
-            <Photos/>
-          </Route>
-          <Route path={'/security-logs'}>
-            <Logs/>
-          </Route>
-          <Route path={'/grant-access'}>
-            <GrantAccess/>
-          </Route>
-        </Switch>
-        </div>
-      </Content>
-      <Footer style={{ textAlign: 'center' }}>Foauth ©2022</Footer>
+      <Sider collapsible collapsed={collapsed} onCollapse={setCollabsed} className="sider_menu">
+        <div className="logo">{collapsed ? 'F' : 'Foauth'}</div>
+        <Menu theme="dark" defaultSelectedKeys={[get_active_element()]} mode="inline" >
+          <Menu.Item key="1" icon={<SettingOutlined />}>
+            <Link to={`/edit-profile`}>Edit profile</Link>
+          </Menu.Item>
+          <Menu.Item key="2" icon={<LockOutlined />}>
+            <Link to={`/security-logs`}>Security logs</Link>
+          </Menu.Item>
+          <Menu.Item key="3" icon={<CameraOutlined />}>
+            <Link to={`/load-photos`}>Load photos</Link>
+          </Menu.Item>
+          <Menu.Item key="4" icon={<PieChartOutlined />}>
+            <Link to={`/dasboard`}>Dashboard</Link>
+          </Menu.Item>
+          <Menu.Item key="5" icon={<ApiOutlined />}>
+            <Link to={`/clients`}>Clients</Link>
+          </Menu.Item>
+          <Menu.Item key="6" icon={<DeploymentUnitOutlined />}>
+            <Link to={`/grant-access`}>Grant Access</Link>
+          </Menu.Item>
+          <Menu.Item key="10" icon={<LogoutOutlined />} onClick={logout}>
+            Logout
+          </Menu.Item>
+        </Menu>
+      </Sider>
+      <Layout className="site-layout">
+        <Header className="site-layout-background header" style={{ padding: "0 3rem", textAlign: 'right' }}>Logged as: <b>{username}</b></Header>
+        <Content style={{ margin: '0 16px' }}>
+          <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
+            <Switch>
+              <Route path={`/edit-profile`}>
+                <Settings />
+              </Route>
+              <Route path={'/dasboard'}>
+                <Dashboard />
+              </Route>
+              <Route path={'/clients'}>
+                <Clients />
+              </Route>
+              <Route path={'/load-photos'}>
+                <Photos />
+              </Route>
+              <Route path={'/security-logs'}>
+                <Logs />
+              </Route>
+              <Route path={'/grant-access'}>
+                <GrantAccess />
+              </Route>
+            </Switch>
+          </div>
+        </Content>
+        <Footer style={{ textAlign: 'center' }}>Foauth ©2022</Footer>
+      </Layout>
     </Layout>
-  </Layout>
   );
 };
 

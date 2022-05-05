@@ -18,13 +18,3 @@ export function PrivateRoute({ component: Component, ...rest }) {
     />
   );
 }
-
-
-export function whichRole(role) {
-  return role === 'CUST' ? "Customer" : "Performer";
-}
-
-
-export function handleLogout() {
-  //need to write logic of logout 
-}
