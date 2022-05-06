@@ -11,6 +11,7 @@ from flask_cors import CORS
 from config.settings import DATABASE_URL
 from utils.logger import configure_logging
 
+
 def create_app(config=None):
     app = Flask(__name__)
 

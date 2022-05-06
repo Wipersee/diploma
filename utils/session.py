@@ -2,6 +2,8 @@ from flask import session, request
 from models.user import User
 from flask import jsonify
 from dal import dal_tokens, dal_user
+import random
+from config.settings import PHOTO_VERIFICATION_METHODS
 
 
 def current_user():
@@ -12,9 +14,11 @@ def current_user():
     return dal_user.get_by_id(id=token_from_db.user_id)
 
 
-def split_by_crlf(s):
-    print(s)
-    return [v for v in s.splitlines() if v]
+def generate_photo_verification_method():
+    method = random.choice(PHOTO_VERIFICATION_METHODS)
+    if method == PHOTO_VERIFICATION_METHODS[1]:
+        return (method, random.choice(range(1, 5)))
+    return (method, 1)
 
 
 def login_required(func):

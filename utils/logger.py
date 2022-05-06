@@ -1,6 +1,7 @@
 import logging
 import structlog
 
+
 def configure_logging():
     structlog.configure(
         processors=[

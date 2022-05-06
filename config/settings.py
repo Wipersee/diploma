@@ -5,3 +5,13 @@ DATABASE_URL = "postgresql+psycopg2://myusername:mypassword@localhost/app"
 FACE_DB_PHOTOS_PATH = "store/face_db_photos"
 FACE_DB_EMBEDDINGS_PATH = "store/face_db_embeddings"
 FACE_DB_FACES_PATH = "store/face_db_faces"
+
+
+REDIS_TTL = 600  # REDIS EX IN SECONDS
+
+PHOTO_VERIFICATION_METHOD_MOUTH = "MOUTH"
+PHOTO_VERIFICATION_METHOD_EYE = "EYE"
+PHOTO_VERIFICATION_METHODS = [
+    PHOTO_VERIFICATION_METHOD_MOUTH,
+    PHOTO_VERIFICATION_METHOD_EYE,
+]

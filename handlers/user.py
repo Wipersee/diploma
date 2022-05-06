@@ -10,6 +10,7 @@ from config.settings import (
     FACE_DB_PHOTOS_PATH,
     FACE_DB_EMBEDDINGS_PATH,
     FACE_DB_FACES_PATH,
+    PHOTO_VERIFICATION_METHOD_EYE,
 )
 from PIL import Image
 import io
@@ -18,6 +19,10 @@ from mimetypes import guess_extension, guess_type
 import base64
 from structlog import get_logger
 from validators.consts import LoginType
+from cal.cache_driver import cache_driver
+from utils.session import generate_photo_verification_method
+from utils.blinking_detector import BlinkingDetector
+import pickle
 
 logger = get_logger()
 
@@ -99,13 +104,43 @@ def auth_user(
     is_valid_pass = Hasher.verify_password(body.password, user.password)
     if not is_valid_pass:
         return False, "Password missmatch"
-    previous_token = dal_tokens.get(user_id=user.id)
-    if previous_token and previous_token.expire_at > datetime.utcnow():
-        return True, previous_token.token
-    if previous_token:
-        if not dal_tokens.delete(previous_token):
+    intermidiate_token = generate_auth_token()
+    method, count = generate_photo_verification_method()
+    response = {
+        "intermidiate_token": intermidiate_token,
+        "verification_method": method,
+        "repeat": count,
+    }
+    cache_method = pickle.dumps(response)
+    if not cache_driver.update(key=f"user.{user.id}.auth.method", value=cache_method):
+        return False, "Error while intermidiate token generation"
+    return True, response
+
+
+def login_user(user, token, photos):
+    verification_conditions = pickle.loads(
+        cache_driver.get(f"user.{user.id}.auth.method")
+    )
+    repeat = verification_conditions.get("repeat")
+    if not verification_conditions.get("token") == token:
+        return False, "Invalid token. Try again from first step"
+    if verification_conditions.get("method") == PHOTO_VERIFICATION_METHOD_EYE:
+        detector = BlinkingDetector("spape_predictor.dat", 0.25, 3, user.username)
+        images = [
+            Image.open(
+                io.BytesIO(base64.decodebytes(bytes(photo.split(",")[1], "utf-8")))
+            )
+            for photo in photos
+        ]
+        if not detector.check(num_blinks=repeat, images=images):
+            return False, "User not verified. Conditions does not satisfied"
+        previous_token = dal_tokens.get(user_id=user.id)
+        if previous_token and previous_token.expire_at > datetime.utcnow():
+            return True, previous_token.token
+        if previous_token:
+            if not dal_tokens.delete(previous_token):
+                return False, "Error while token generation"
+        token = Token(token=generate_auth_token(), user_id=user.id)
+        if not dal_tokens.add(token):
             return False, "Error while token generation"
-    token = Token(token=generate_auth_token(), user_id=user.id)
-    if not dal_tokens.add(token):
-        return False, "Error while token generation"
-    return True, token.token
+        return True, token.token

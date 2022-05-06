@@ -4,6 +4,7 @@ from structlog import get_logger
 
 logger = get_logger()
 
+
 def get(user_id):
     try:
         return (

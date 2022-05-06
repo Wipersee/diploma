@@ -1,8 +1,8 @@
 import time
 from flask_pydantic import validate
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from utils.session import login_required
-from handlers.user import create_user, auth_user, update_user, update_user_password
+from handlers.user import create_user, auth_user, update_user, update_user_password, login_user
 from validators import user_schema
 from dal import dal_user, dal_tokens
 from utils.validation import EmbeddingGenerator
@@ -123,7 +123,9 @@ def update_user_password_api(body: user_schema.UserPassword, user_id):
         return jsonify({"message": "No user found"}), 404
     status, error = update_user_password(password=body, user=user)
     if not status:
-        logger.exception(f"Error occured while changing user password with id {user_id}")
+        logger.exception(
+            f"Error occured while changing user password with id {user_id}"
+        )
         return jsonify({"message": error}), 500
     logger.info(f"Successfully changed password for user with id {user_id}")
     return jsonify({"message": error}), 200
@@ -145,16 +147,23 @@ def signup(body: user_schema.CreateUser):
 @validate()
 def login(body: user_schema.LoginUser):
     user = dal_user.get_by_name(username=body.username)
-    logger.info(f"User {body.username} trying to login")
-    if not user:
-        logger.error(f"User {body.username} not found for login")
-        return jsonify({"message": "No user found"}), 404
-    is_valid, token = auth_user(user=user, body=body)
+    args = request.args
+    if not args.get("token"):
+        logger.info(f"User {body.username} trying to login")
+        if not user:
+            logger.error(f"User {body.username} not found for login")
+            return jsonify({"message": "No user found"}), 404
+        is_valid, response = auth_user(user=user, body=body)
+        if not is_valid:
+            logger.error(f"User {body.username} failed auth flow with error {response}")
+            return jsonify({"message": response}), 401
+        return jsonify(response), 200
+    is_valid, response = login_user(user=user, body=body)
     if not is_valid:
-        logger.error(f"User {body.username} failed auth flow with error {token}")
-        return jsonify({"message": token}), 401
+        logger.error(f"User {body.username} failed auth flow with error {response}")
+        return jsonify({"message": response}), 401
     logger.info(f"User {body.username} successfully loged in")
-    return jsonify({"message": token}), 200
+    return jsonify({"message": response}), 200
 
 
 @user_api_router.route("/logout/", methods=["POST"])

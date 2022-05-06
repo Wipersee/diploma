@@ -60,14 +60,22 @@ def revoke_grant_access(
     access_id,
     user_id,
 ):
-    logger.info(f"User with id {user_id} trying to revoke access rule for id {access_id}")
+    logger.info(
+        f"User with id {user_id} trying to revoke access rule for id {access_id}"
+    )
     if not dal_client.get_grant_access_one(user_id=user_id, access_id=access_id):
-        logger.error(f"User with id {user_id} failed to revoke access rule. This access id does not belong to him.")
+        logger.error(
+            f"User with id {user_id} failed to revoke access rule. This access id does not belong to him."
+        )
         return jsonify({"message": "You are not permmited to revoke this access"}), 403
     if not dal_client.revoke_grant_access(access_id=access_id):
-        logger.exception(f"Error occured while revoking access for user with id {user_id} for access rule with id {access_id}")
+        logger.exception(
+            f"Error occured while revoking access for user with id {user_id} for access rule with id {access_id}"
+        )
         return jsonify({"message": "Error occured"}), 500
-    logger.info(f"User with id {user_id} successfully revoke access rule with id {access_id}")
+    logger.info(
+        f"User with id {user_id} successfully revoke access rule with id {access_id}"
+    )
     return jsonify({"message": "Successfully revoked"}), 200
 
 
@@ -79,7 +87,9 @@ def create(body: client_schema.CreateClient, user_id):
     is_ok, data = create_client(body, user_id)
     logger.info(f"User with id {user_id} trying to create client")
     if not is_ok:
-        logger.exception(f"Error occured while creating client fo user with id {user_id}")
+        logger.exception(
+            f"Error occured while creating client fo user with id {user_id}"
+        )
         return jsonify({"message": "Error accured while creating client"}), 500
     logger.info(f"User with id {user_id} successfully created client")
     return jsonify({"message": "Successfully created"}), 201
@@ -92,7 +102,9 @@ def delete(client_id, user_id):
     logger.info(f"User with id {user_id} trying to delete client")
     is_ok = delete_client(client_id, user_id)
     if not is_ok:
-        logger.exception(f"Error occured while deleting client fo user with id {user_id}")
+        logger.exception(
+            f"Error occured while deleting client fo user with id {user_id}"
+        )
         return jsonify({"message": "Error accured while deleting client"}), 500
     logger.info(f"User with id {user_id} successfully deleted client")
     return jsonify({"message": "Successfully deleted"}), 200
