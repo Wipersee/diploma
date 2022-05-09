@@ -17,6 +17,8 @@ Project is created with:
 * Flask
 * React
 * Antd
+* PostgreSQL
+* Redis
 
 ## Setup
 To run this project, you need to create virtual env with Anaconda from yml file
@@ -43,6 +45,6 @@ npm start
 5. ~~Add photos on front in secutiry logs~~
 6. Build react and add it as tempalate in / path
 7. ~~Add PostgreSQL integration~~
-8. Add Redis for session management ?
+8. ~~Add Redis for session management ?~~
 9. ~~Add API for user info for clients~~
 10. ~~Add exception catch when no face in input image~~
