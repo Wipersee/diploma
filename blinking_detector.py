@@ -18,9 +18,9 @@ logger = get_logger()
 
 
 class BlinkingDetector:
-    def __init__(self, shape_predictor_filename, eye_ar_thershold, eye_ar_frames, username):
+    def __init__(self, eye_ar_thershold, eye_ar_frames, username):
         self.detector = dlib.get_frontal_face_detector()
-        self.predictor = dlib.shape_predictor(shape_predictor_filename)
+        self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
         self.eye_ar_thershold = eye_ar_thershold
         self.eye_ar_frames = eye_ar_frames
         self.counter = 0
@@ -96,7 +96,7 @@ class BlinkingDetector:
     def check(self, num_blinks, images):
         self.facenet.username = self.username
         for image in images:
-            self.eye_blink_detect(image=image)
+            self.eye_blink_detect(image=np.array(image))
             if self.counter != 0:
                 verified, results = verification(self.facenet, image, self.username)
                 if not verified:
@@ -138,5 +138,5 @@ class BlinkingDetector:
 
 
 if __name__ == "__main__":
-    d = BlinkingDetector("../shape_predictor_68_face_landmarks.dat", 0.25, 3)
+    d = BlinkingDetector(0.25, 3, 'test')
     d.video_capture()

@@ -158,7 +158,7 @@ def login(body: user_schema.LoginUser):
             logger.error(f"User {body.username} failed auth flow with error {response}")
             return jsonify({"message": response}), 401
         return jsonify(response), 200
-    is_valid, response = login_user(user=user, body=body)
+    is_valid, response = login_user(user=user, token=args.get("token"), photos=body.photos)
     if not is_valid:
         logger.error(f"User {body.username} failed auth flow with error {response}")
         return jsonify({"message": response}), 401

@@ -15,7 +15,8 @@ class CreateUser(BaseModel):
 class LoginUser(BaseModel):
     username: str
     password: str
-    photo: str
+    photo: Optional[str]
+    photos: Optional[List[str]]
 
 
 class GetUser(BaseModel):
