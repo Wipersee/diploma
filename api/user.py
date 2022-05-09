@@ -2,7 +2,13 @@ import time
 from flask_pydantic import validate
 from flask import Blueprint, jsonify, request
 from utils.session import login_required
-from handlers.user import create_user, auth_user, update_user, update_user_password, login_user
+from handlers.user import (
+    create_user,
+    auth_user,
+    update_user,
+    update_user_password,
+    login_user,
+)
 from validators import user_schema
 from dal import dal_user, dal_tokens
 from utils.validation import EmbeddingGenerator
@@ -21,6 +27,7 @@ from mimetypes import guess_extension, guess_type
 import base64
 from flask_cors import cross_origin
 from io import BytesIO
+from utils.embedding import facenet_model
 
 logger = structlog.get_logger()
 
@@ -158,7 +165,9 @@ def login(body: user_schema.LoginUser):
             logger.error(f"User {body.username} failed auth flow with error {response}")
             return jsonify({"message": response}), 401
         return jsonify(response), 200
-    is_valid, response = login_user(user=user, token=args.get("token"), photos=body.photos)
+    is_valid, response = login_user(
+        user=user, token=args.get("token"), photos=body.photos
+    )
     if not is_valid:
         logger.error(f"User {body.username} failed auth flow with error {response}")
         return jsonify({"message": response}), 401
@@ -183,9 +192,7 @@ def load_photos(
     body: user_schema.UserPhotos,
     user_id,
 ):
-    model = EmbeddingGenerator(
-        FACE_DB_PHOTOS_PATH, FACE_DB_EMBEDDINGS_PATH, FACE_DB_FACES_PATH
-    )
+    model = facenet_model
     user = dal_user.get_by_id(id=user_id)
     username = user.username
     model.username = username

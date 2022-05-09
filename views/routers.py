@@ -9,10 +9,12 @@ from models.oauth import OAuth2Client
 from utils.oauth2 import authorization, require_oauth
 import requests
 from dal import dal_user
-from handlers.user import auth_user
+from handlers.user import auth_user, login_user
 from validators import user_schema
 from validators.consts import LoginType
+from structlog import get_logger
 
+logger = get_logger()
 bp = Blueprint("home", __name__)
 
 
@@ -22,20 +24,39 @@ def home():
         username = request.form.get("username")
         password = request.form.get("password")
         photo = request.form.get("photo")
-        print(request.form)
         user = dal_user.get_by_name(username=username)
-        if not user:
-            return "No user found"
+        token = request.form.get("token")
+        if not token:
+            if not user:
+                return "No user found"
+            body = user_schema.LoginUser.construct(
+                username=username, password=password, photo=photo
+            )
+            is_valid, response = auth_user(
+                user=user, body=body, type=LoginType.oauth.value
+            )
+            if not is_valid:
+                return "Verification is unsuccessful"
+            return render_template(
+                "home.html",
+                intermidiate_token=response.get("intermidiate_token"),
+                verification_method=response.get("verification_method"),
+                repeat=response.get("repeat"),
+            )
+        photos = photo.split(", ")
         body = user_schema.LoginUser.construct(
-            username=username, password=password, photo=photo
+            username=username, password='', photos=photos
         )
-        is_valid, token = auth_user(user=user, body=body, type=LoginType.oauth.value)
+        is_valid, response = login_user(
+            user=user, token=token, photos=body.photos
+        )
         if not is_valid:
-            return "Verification is unsuccessful"
-
+            logger.error(f"User {body.username} failed in OAUTH with error {response}")
+            return "Verification for real human is unsuccessful"
+        logger.info(f"User {body.username} successfully loged in OAUTH")
         # if user is not just to log in, but need to head back to the auth page, then go for it
         next_page = request.args.get("next")
         if next_page:
-            return redirect(next_page + f"&token={token}")
+            return redirect(next_page + f"&token={response}")
         return redirect("/")
     return render_template("home.html")

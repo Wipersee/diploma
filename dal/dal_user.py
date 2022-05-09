@@ -69,7 +69,8 @@ def get_unauth_by_user_id_for_line(id: str):
                 func.count(UnauthorizedLogins.date).filter(
                     UnauthorizedLogins.user_id == id
                 ),
-            ).order_by(sa.cast(UnauthorizedLogins.date, sa.Date).asc())
+            )
+            .order_by(sa.cast(UnauthorizedLogins.date, sa.Date).asc())
             .group_by(
                 sa.cast(UnauthorizedLogins.date, sa.Date),
             )

@@ -16,45 +16,45 @@ from config.settings import (
 logger = get_logger()
 
 
-class BlinkingDetector:
-    def __init__(self, eye_ar_thershold, eye_ar_frames, username, model):
+class MouthDetector:
+    def __init__(self, MOUTH_AR_THRESH, username, model):
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
-        self.eye_ar_thershold = eye_ar_thershold
-        self.eye_ar_frames = eye_ar_frames
+        self.MOUTH_AR_THRESH = MOUTH_AR_THRESH
         self.counter = 0
-        self.left_eye = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
-        self.right_eye = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
+        self.mStart = 49
+        self.mEnd = 68
         self.total = 0
         self.facenet = model
         self.username = username
 
-    def eye_aspect_ratio(self, eye):
+    def mouth_aspect_ratio(self, mouth):
         # compute the euclidean distances between the two sets of
-        # vertical eye landmarks (x, y)-coordinates
-        A = dist.euclidean(eye[1], eye[5])
-        B = dist.euclidean(eye[2], eye[4])
+        # vertical mouth landmarks (x, y)-coordinates
+        A = dist.euclidean(mouth[2], mouth[10])  # 51, 59
+        B = dist.euclidean(mouth[4], mouth[8])  # 53, 57
 
         # compute the euclidean distance between the horizontal
-        # eye landmark (x, y)-coordinates
-        C = dist.euclidean(eye[0], eye[3])
+        # mouth landmark (x, y)-coordinates
+        C = dist.euclidean(mouth[0], mouth[6])  # 49, 55
 
-        # compute the eye aspect ratio
-        ear = (A + B) / (2.0 * C)
+        # compute the mouth aspect ratio
+        mar = (A + B) / (2.0 * C)
 
-        # return the eye aspect ratio
-        return ear
+        # return the mouth aspect ratio
+        return mar
 
-    def eye_blink_detect(self, image):
-        image = resize(image, width=450)
-        gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    def mouth_open_detect(self, image):
+        frame = resize(image, width=640)
+        gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+        # detect faces in the grayscale frame
         rects = self.detector(gray_img, 0)
         if not rects:
-            logger.error("Eye blink detector found no face")
+            logger.error("Mouth open detector found no face")
             return None
         if len(rects) > 1:
-            logger.error("Eye blink detector found more than one face")
+            logger.error("Mouth open detector found more than one face")
             return None
         rect = rects[0]
         # determine the facial landmarks for the face region, then
@@ -63,46 +63,35 @@ class BlinkingDetector:
         shape = self.predictor(gray_img, rect)
         shape = face_utils.shape_to_np(shape)
 
-        # extract the left and right eye coordinates, then use the
-        # coordinates to compute the eye aspect ratio for both eyes
-        leftEye = shape[self.left_eye[0] : self.left_eye[1]]
-        rightEye = shape[self.right_eye[0] : self.right_eye[1]]
-        leftEAR = self.eye_aspect_ratio(leftEye)
-        rightEAR = self.eye_aspect_ratio(rightEye)
+        # extract the mouth coordinates, then use the
+        # coordinates to compute the mouth aspect ratio
+        mouth = shape[self.mStart : self.mEnd]
 
-        # average the eye aspect ratio together for both eyes
-        ear = (leftEAR + rightEAR) / 2.0
+        mouthMAR = self.mouth_aspect_ratio(mouth)
+        mar = mouthMAR
 
         # check to see if the eye aspect ratio is below the blink
         # threshold, and if so, increment the blink frame counter
-        if ear < self.eye_ar_thershold:
+        if mar > self.MOUTH_AR_THRESH:
             self.counter += 1
-
-        # otherwise, the eye aspect ratio is not below the blink
-        # threshold
-        else:
-            # if the eyes were closed for a sufficient number of
-            # then increment the total number of blinks
-            if self.counter >= self.eye_ar_frames:
-                logger.info("Eye blink detector detected blink")
-                self.total += 1
-
-            # reset the eye frame counter
+        elif mar < self.MOUTH_AR_THRESH and self.counter > 0:
+            self.total += 1
             self.counter = 0
+            logger.info("Mouth open detected")
 
-    def check(self, num_blinks, images):
+    def check(self, num_mouth_opens, images):
         self.facenet.username = self.username
         for image in images:
-            self.eye_blink_detect(image=np.array(image))
+            self.mouth_open_detect(image=np.array(image))
             if self.counter != 0 and self.total % 2 == 0:
                 verified, results = verification(self.facenet, image, self.username)
                 if not verified:
                     return False, "User missmatch"
-        logger.info(f"Total blinks is {self.total}")
-        if self.total < num_blinks:
-            logger.error("Blink verification unsuccessfull")
+        logger.info(f"Total mouth opens is {self.total}")
+        if self.total < num_mouth_opens:
+            logger.error("Mouth verification unsuccessfull")
             return False
-        logger.info("Blink verification successfull")
+        logger.info("Mouth verification successfull")
         return True
 
     def video_capture(self):
@@ -110,10 +99,10 @@ class BlinkingDetector:
         time.sleep(1.0)
         while True:
             frame = vs.read()
-            self.eye_blink_detect(image=frame)
+            self.mouth_open_detect(image=frame)
             cv2.putText(
                 frame,
-                "Blinks: {}".format(self.total),
+                "Mouth opens: {}".format(self.total),
                 (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.7,
@@ -135,5 +124,5 @@ class BlinkingDetector:
 
 
 if __name__ == "__main__":
-    d = BlinkingDetector(0.25, 3, "test")
+    d = MouthDetector(0.79, "test")
     d.video_capture()

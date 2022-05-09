@@ -14,7 +14,6 @@ def verify(input_image, embeddings, detection_threshold, verification_threshold)
     for validation_image in embeddings:
         # Make Predictions
         result = spatial.distance.cosine(input_image, validation_image)
-        logger.info(f"Distance between 2 embeddings is {result}")
         results.append(result)
 
     # Detection Threshold: Metric above which a prediciton is considered positive
@@ -45,10 +44,14 @@ def verification(model, image, username):
         verification_threshold=0.6,
     )
     if verified:
-        logger.info("You are welcome")
+        logger.info(
+            f"User {username} passed facenet vefification with results: {results}"
+        )
         return True, results
     else:
-        logger.error("Blocked")
+        logger.error(
+            f"User {username} failed facenet vefification with results: {results}"
+        )
         return False, results
 
 
