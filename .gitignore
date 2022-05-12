@@ -5,3 +5,5 @@ __pycache__
 face_db_embeddings
 face_db_faces
 face_db_photos
+facenet/dataset
+facenet/npzs

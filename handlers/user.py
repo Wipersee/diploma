@@ -137,7 +137,26 @@ def login_user(user, token, photos):
     ):
         detector = BlinkingDetector(0.25, 3, user.username, facenet_model)
         if not detector.check(num_blinks=repeat, images=images):
-            return False, "User not verified. Conditions does not satisfied"
+            filename = f"{user.username}_{uuid4()}"
+            file_extension = guess_extension(guess_type(photos[0])[0])
+            img = Image.open(
+                io.BytesIO(base64.decodebytes(bytes(photos[0].split(",")[1], "utf-8")))
+            )
+            img.save(f"store/unauthorized_logins/{filename}{file_extension}")
+            unauthorized_login = UnauthorizedLogins(
+                user_id=user.id,
+                type="DEFAULT",
+                similarity=str(1.0),
+                photo_filename=f"{filename}{file_extension}",
+            )
+            if not dal_user.add_unauthorized_logins(
+                unauthorized_login=unauthorized_login
+            ):
+                return False, f"User {user.username} not verified. Conditions does not satisfied"
+            return (
+                False,
+                f"User {user.username} not verified. Conditions does not satisfied. Photo saved for security reasons",
+            )
 
     elif (
         verification_conditions.get("verification_method")
@@ -148,7 +167,26 @@ def login_user(user, token, photos):
             num_mouth_opens=repeat,
             images=images,
         ):
-            return False, "User not verified. Conditions does not satisfied"
+            filename = f"{user.username}_{uuid4()}"
+            file_extension = guess_extension(guess_type(photos[0])[0])
+            img = Image.open(
+                io.BytesIO(base64.decodebytes(bytes(photos[0].split(",")[1], "utf-8")))
+            )
+            img.save(f"store/unauthorized_logins/{filename}{file_extension}")
+            unauthorized_login = UnauthorizedLogins(
+                user_id=user.id,
+                type="DEFAULT",
+                similarity=str(1.0),
+                photo_filename=f"{filename}{file_extension}",
+            )
+            if not dal_user.add_unauthorized_logins(
+                unauthorized_login=unauthorized_login
+            ):
+                return False, f"User {user.username} not verified. Conditions does not satisfied"
+            return (
+                False,
+                f"User {user.username} not verified. Conditions does not satisfied. Photo saved for security reasons",
+            )
     previous_token = dal_tokens.get(user_id=user.id)
     if previous_token and previous_token.expire_at > datetime.utcnow():
         return True, previous_token.token

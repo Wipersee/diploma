@@ -36,6 +36,10 @@ Install npm env and run react server
 npm install
 npm start
 ```
+If no GPU or GPU incorrect before run type this
+```
+export CUDA_VISIBLE_DEVICES=""
+```
 
 ## Need to do
 1. ~~Add Oauth login type in security logs~~
